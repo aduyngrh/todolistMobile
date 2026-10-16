@@ -14,6 +14,7 @@ class TodoController extends Controller
     {
         $todos = \App\Models\Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
+            ->with('subtasks')
             ->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END")
             ->orderBy('created_at', 'desc')
             ->get();

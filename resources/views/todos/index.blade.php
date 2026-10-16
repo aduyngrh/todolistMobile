@@ -186,7 +186,7 @@
                                         <!-- Archive Icon -->
                                         <form method="POST" action="{{ route('todos.archive', $todo) }}" class="inline">
                                             @csrf @method('PATCH')
-                                            <button type="submit" class="p-1.5 bg-slate-100 text-slate-600 hover:bg-slate-600 hover:text-white rounded-lg transition" title="Arsipkan" aria-label="Arsipkan">▣</button>
+                                            <button type="submit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-600 hover:text-white rounded-lg transition" title="Arsipkan tugas" aria-label="Arsipkan tugas"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M6 7l1 12h10l1-12M9 7V5h6v2"/></svg></button>
                                         </form>
                                     </div>
                                 </div>
@@ -195,6 +195,36 @@
                                         💡 {{ $todo->description }}
                                     </div>
                                 @endif
+                                <div class="mb-3 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4 dark:border-indigo-900 dark:bg-gray-800">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700" aria-hidden="true"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
+                                            <div>
+                                                <p class="text-xs font-extrabold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Langkah tugas</p>
+                                                <p class="text-[11px] text-gray-500">Pecah tugas ini menjadi langkah kecil</p>
+                                            </div>
+                                        </div>
+                                        <span class="rounded-full bg-white px-2.5 py-1 text-xs font-extrabold text-indigo-700 shadow-sm dark:bg-gray-900 dark:text-indigo-300">{{ $todo->subtasks->where('completed', true)->count() }}/{{ $todo->subtasks->count() }}</span>
+                                    </div>
+                                    @forelse($todo->subtasks as $subtask)
+                                        <div class="mb-2 flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm shadow-sm dark:bg-gray-900">
+                                            <form method="POST" action="{{ route('subtasks.update', $subtask) }}">@csrf @method('PATCH')
+                                                <button type="submit" class="inline-flex h-7 w-7 items-center justify-center rounded-lg border {{ $subtask->completed ? 'border-emerald-300 bg-emerald-100 text-emerald-700' : 'border-gray-300 bg-gray-50 text-gray-400' }}" title="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}" aria-label="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg></button>
+                                            </form>
+                                            <span class="flex-1 {{ $subtask->completed ? 'line-through text-gray-400' : 'font-medium text-gray-700 dark:text-gray-200' }}">{{ $subtask->title }}</span>
+                                            <form method="POST" action="{{ route('subtasks.destroy', $subtask) }}">@csrf @method('DELETE')
+                                                <button type="submit" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-rose-100 hover:text-rose-600" title="Hapus subtask" aria-label="Hapus subtask"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/></svg></button>
+                                            </form>
+                                        </div>
+                                    @empty
+                                        <p class="rounded-xl border border-dashed border-indigo-200 px-3 py-2 text-xs text-gray-500">Belum ada langkah. Tambahkan langkah pertama di bawah.</p>
+                                    @endforelse
+                                    <form method="POST" action="{{ route('subtasks.store', $todo) }}" class="mt-3 flex gap-2">@csrf
+                                        <label for="subtask-{{ $todo->id }}" class="sr-only">Nama langkah tugas</label>
+                                        <input id="subtask-{{ $todo->id }}" name="title" required maxlength="255" placeholder="Contoh: Kumpulkan bahan..." class="min-w-0 flex-1 rounded-xl border-gray-200 px-3 py-2 text-xs focus:border-indigo-500 focus:ring-indigo-200" title="Tulis langkah kecil untuk tugas ini">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white hover:bg-indigo-700" title="Tambah langkah" aria-label="Tambah langkah"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg> Tambah</button>
+                                    </form>
+                                </div>
                                 <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400 font-semibold">
                                     <span>📅 {{ $todo->created_at->format('d M Y') }}</span>
                                     @if($todo->due_date)

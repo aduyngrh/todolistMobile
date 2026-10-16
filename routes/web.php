@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TodoController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('todos', TodoController::class);
     Route::patch('/todos/{todo}/archive', [TodoController::class, 'archive'])->name('todos.archive');
     Route::patch('/todos/{todo}/restore', [TodoController::class, 'restore'])->withTrashed()->name('todos.restore');
+    Route::post('/todos/{todo}/subtasks', [SubtaskController::class, 'store'])->name('subtasks.store');
+    Route::patch('/subtasks/{subtask}', [SubtaskController::class, 'update'])->name('subtasks.update');
+    Route::delete('/subtasks/{subtask}', [SubtaskController::class, 'destroy'])->name('subtasks.destroy');
 });
 
 require __DIR__.'/auth.php';
