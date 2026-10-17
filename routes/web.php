@@ -19,6 +19,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('todos', TodoController::class);
+    Route::get('/calendar', [TodoController::class, 'calendar'])->name('todos.calendar');
+    Route::get('/trash', [TodoController::class, 'trash'])->name('todos.trash');
+    Route::patch('/trash/{todo}/restore', [TodoController::class, 'restoreFromTrash'])->withTrashed()->name('todos.trash.restore');
+    Route::delete('/trash/{todo}', [TodoController::class, 'forceDestroy'])->withTrashed()->name('todos.trash.force-destroy');
     Route::patch('/todos/{todo}/archive', [TodoController::class, 'archive'])->name('todos.archive');
     Route::patch('/todos/{todo}/restore', [TodoController::class, 'restore'])->withTrashed()->name('todos.restore');
     Route::post('/todos/{todo}/subtasks', [SubtaskController::class, 'store'])->name('subtasks.store');

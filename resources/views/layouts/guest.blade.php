@@ -15,15 +15,15 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-200 via-purple-200 to-pink-200 transition-colors dark:bg-gray-900 px-4 py-10">
-            <div class="w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl shadow-indigo-200/50 lg:grid lg:grid-cols-2">
-                    <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 dark:bg-gray-800 p-12 text-white">
+        <div class="min-h-screen flex items-center justify-center bg-slate-100 transition-colors dark:bg-gray-950 px-4 py-10">
+            <div class="w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl shadow-slate-300/50 dark:bg-gray-900 lg:grid lg:grid-cols-2">
+                    <div class="hidden lg:flex flex-col justify-between bg-slate-800 dark:bg-gray-800 p-12 text-white">
                     <div>
                         <div class="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur" aria-hidden="true"><svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H5v4m0 0 4-4m-4 4a7 7 0 1 0 2-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 19h4v-4m0 0-4 4m4-4a7 7 0 1 0-2 5"/></svg></div>
                         <h1 class="text-4xl font-black leading-tight">Rencanakan hari.<br> Selesaikan tugas.</h1>
-                        <p class="mt-5 max-w-sm text-indigo-100">Kelola semua pekerjaan dan catatan Anda dalam satu task board yang sederhana.</p>
+                        <p class="mt-5 max-w-sm text-slate-300">Kelola semua pekerjaan dan catatan Anda dalam satu task board yang sederhana.</p>
                     </div>
-                    <p class="text-sm text-indigo-100/80">My Task Board · Fokus pada hal penting</p>
+                    <p class="text-sm text-slate-400">My Task Board · Fokus pada hal penting</p>
                 </div>
 
                 <div class="p-6 sm:p-10 lg:p-12">

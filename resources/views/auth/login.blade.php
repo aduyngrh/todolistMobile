@@ -3,7 +3,7 @@
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <div class="mb-8">
-        <p class="text-sm font-semibold uppercase tracking-wider text-indigo-600">Selamat datang kembali</p>
+        <p class="text-sm font-semibold uppercase tracking-wider text-slate-600">Selamat datang kembali</p>
         <h2 class="mt-2 text-3xl font-black tracking-tight text-gray-900">Masuk ke akun Anda</h2>
         <p class="mt-2 text-sm text-gray-500">Lanjutkan mengatur tugas dan prioritas hari ini.</p>
     </div>
@@ -45,7 +45,7 @@
                 </a>
             @endif
 
-            <x-primary-button class="w-full justify-center rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold shadow-lg shadow-indigo-200 transition hover:bg-indigo-700 sm:w-auto">
+            <x-primary-button class="w-full justify-center rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold shadow-lg shadow-slate-300 transition hover:bg-slate-900 sm:w-auto">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>

@@ -4,17 +4,39 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class TodoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $todos = \App\Models\Todo::where('user_id', Auth::id())
+        $query = \App\Models\Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
-            ->with('subtasks')
+            ->with('subtasks');
+
+        if ($search = $request->string('search')->trim()->toString()) {
+            $query->where(function ($query) use ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('completed', $request->input('status') === 'done');
+        }
+
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->input('priority'));
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        $todos = $query
             ->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END")
             ->orderBy('created_at', 'desc')
             ->get();
@@ -25,6 +47,22 @@ class TodoController extends Controller
             ->get();
 
         return view('todos.index', compact('todos', 'archivedTodos'));
+    }
+
+    public function calendar(Request $request)
+    {
+        $month = $request->input('month', now()->format('Y-m'));
+        abort_unless(preg_match('/^\d{4}-\d{2}$/', $month), 404);
+        $monthDate = \Carbon\Carbon::createFromFormat('!Y-m', $month)->startOfMonth();
+        $todos = \App\Models\Todo::where('user_id', Auth::id())
+            ->whereNull('archived_at')
+            ->whereNotNull('due_date')
+            ->whereBetween('due_date', [$monthDate->copy()->startOfMonth(), $monthDate->copy()->endOfMonth()])
+            ->orderBy('due_date')
+            ->get()
+            ->groupBy(fn ($todo) => $todo->due_date->format('Y-m-d'));
+
+        return view('todos.calendar', compact('monthDate', 'todos'));
     }
 
     /**
@@ -82,6 +120,7 @@ class TodoController extends Controller
     public function update(Request $request, string $id)
     {
         $todo = \App\Models\Todo::findOrFail($id);
+        Gate::authorize('update', $todo);
         if ($request->has('title')) {
             $todo->title = $request->title;
         }
@@ -108,6 +147,7 @@ class TodoController extends Controller
     public function archive(string $id)
     {
         $todo = \App\Models\Todo::where('user_id', Auth::id())->findOrFail($id);
+        Gate::authorize('update', $todo);
         $todo->update(['archived_at' => now()]);
 
         return redirect()->route('todos.index')->with('success', 'Tugas berhasil diarsipkan.');
@@ -116,9 +156,38 @@ class TodoController extends Controller
     public function restore(string $id)
     {
         $todo = \App\Models\Todo::withTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        Gate::authorize('restore', $todo);
         $todo->update(['archived_at' => null]);
 
         return redirect()->route('todos.index')->with('success', 'Tugas berhasil dipulihkan.');
+    }
+
+    public function trash()
+    {
+        $trashedTodos = \App\Models\Todo::onlyTrashed()
+            ->where('user_id', Auth::id())
+            ->latest('deleted_at')
+            ->get();
+
+        return view('todos.trash', compact('trashedTodos'));
+    }
+
+    public function restoreFromTrash(string $id)
+    {
+        $todo = \App\Models\Todo::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        Gate::authorize('restore', $todo);
+        $todo->restore();
+
+        return redirect()->route('todos.trash')->with('success', 'Tugas berhasil dipulihkan.');
+    }
+
+    public function forceDestroy(string $id)
+    {
+        $todo = \App\Models\Todo::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        Gate::authorize('forceDelete', $todo);
+        $todo->forceDelete();
+
+        return redirect()->route('todos.trash')->with('success', 'Tugas dihapus permanen.');
     }
 
     /**
@@ -127,6 +196,7 @@ class TodoController extends Controller
     public function destroy(string $id)
     {
         $todo = \App\Models\Todo::where('user_id', Auth::id())->findOrFail($id);
+        Gate::authorize('delete', $todo);
         $todo->delete();
 
         return redirect()->route('todos.index')->with('success', 'Tugas berhasil dipindahkan ke sampah.');

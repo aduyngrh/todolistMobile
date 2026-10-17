@@ -17,8 +17,17 @@
     <!-- Script SortableJS via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-    <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 transition-colors dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
+    <div class="min-h-screen bg-slate-50 py-8 transition-colors dark:bg-gray-950">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <form method="GET" action="{{ route('todos.index') }}" class="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+                    <label class="md:col-span-2"><span class="sr-only">Cari tugas</span><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari judul atau deskripsi..." class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-200"></label>
+                    <select name="status" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua status</option><option value="pending" @selected(request('status') === 'pending')>Belum selesai</option><option value="done" @selected(request('status') === 'done')>Selesai</option></select>
+                    <select name="priority" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua prioritas</option><option value="High" @selected(request('priority') === 'High')>High</option><option value="Medium" @selected(request('priority') === 'Medium')>Medium</option><option value="Low" @selected(request('priority') === 'Low')>Low</option></select>
+                    <select name="category" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua kategori</option><option value="Work" @selected(request('category') === 'Work')>Work</option><option value="Personal" @selected(request('category') === 'Personal')>Personal</option><option value="Urgent" @selected(request('category') === 'Urgent')>Urgent</option></select>
+                    <div class="flex gap-2 md:col-span-3"><button type="submit" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Cari / Filter</button><a href="{{ route('todos.index') }}" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-100">Reset</a></div>
+                </div>
+            </form>
             
             <!-- Edit Modal -->
             <div id="edit-modal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm bg-black/30">
@@ -133,7 +142,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 
                 <!-- Column: To Do -->
-                <div class="bg-gradient-to-b from-amber-50/80 to-orange-50/50 p-6 rounded-3xl border border-amber-200/60 shadow-xl shadow-amber-100/30">
+                <div class="bg-slate-100 p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/60 dark:bg-gray-900 dark:border-gray-800">
                     <div class="flex justify-between items-center mb-5">
                         <div class="flex items-center gap-2.5">
                             <span class="w-3.5 h-3.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-sm shadow-amber-300"></span>
@@ -145,7 +154,7 @@
                     </div>
 
                     <!-- Draggable List -->
-                    <div id="todo-list" class="space-y-4 min-h-[260px]" data-status="0">
+                    <div id="todo-list" class="max-h-[70vh] min-h-[260px] space-y-4 overflow-y-auto pr-2" data-status="0">
                         @forelse ($todos->where('completed', false) as $todo)
                             <div class="task-card bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-md shadow-amber-50 border border-amber-100 hover:shadow-xl hover:border-amber-300 transition-all duration-200 cursor-grab active:cursor-grabbing group" 
                                  data-id="{{ $todo->id }}">
@@ -247,7 +256,7 @@
                 </div>
 
                 <!-- Column: Done -->
-                <div class="bg-gradient-to-b from-emerald-50/80 to-teal-50/50 p-6 rounded-3xl border border-emerald-200/60 shadow-xl shadow-emerald-100/30">
+                <div class="bg-slate-100 p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/60 dark:bg-gray-900 dark:border-gray-800">
                     <div class="flex justify-between items-center mb-5">
                         <div class="flex items-center gap-2.5">
                             <span class="w-3.5 h-3.5 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full shadow-sm shadow-emerald-300"></span>
@@ -259,7 +268,7 @@
                     </div>
 
                     <!-- Draggable List -->
-                    <div id="done-list" class="space-y-4 min-h-[260px]" data-status="1">
+                    <div id="done-list" class="max-h-[70vh] min-h-[260px] space-y-4 overflow-y-auto pr-2" data-status="1">
                         @forelse ($todos->where('completed', true) as $todo)
                             <div class="task-card bg-white/70 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-emerald-100/60 hover:bg-white hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group opacity-90 hover:opacity-100" 
                                  data-id="{{ $todo->id }}">

@@ -21,13 +21,13 @@
         $topCategory = $todos->groupBy('category')->sortByDesc(fn ($items) => $items->count())->keys()->first() ?? 'Belum ada';
     @endphp
 
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/40 to-purple-50 py-8 transition-colors dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950 sm:py-12">
-        <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-            <section class="overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 text-white shadow-xl shadow-indigo-200 sm:p-8">
+    <div class="min-h-screen bg-slate-50 py-8 transition-colors dark:bg-gray-950 sm:py-12">
+        <div class="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
+            <section class="overflow-hidden rounded-3xl bg-slate-800 p-6 text-white shadow-xl shadow-slate-300 sm:p-8">
                 <div class="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
                     <div>
                         <p class="text-sm font-medium text-indigo-100">Selamat datang kembali,</p>
-                        <h1 class="mt-1 flex items-center gap-3 text-3xl font-black tracking-tight">{{ Auth::user()->name }} <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15" aria-hidden="true"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M3 12h18"/></svg></span></h1>
+                        <h1 class="mt-1 flex items-center gap-3 text-3xl font-black tracking-tight">{{ Auth::user()->name }} ✨</h1>
                         <p class="mt-3 max-w-lg text-sm leading-6 text-indigo-100">Atur prioritas, selesaikan tugas, dan jaga fokus Anda hari ini.</p>
                     </div>
                     <a href="{{ route('todos.index') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-700 shadow-lg transition hover:bg-indigo-50">Buka Todo List <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
@@ -42,7 +42,7 @@
 
             <section class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
                 <div class="flex items-center justify-between"><div><h3 class="font-bold text-gray-900 dark:text-white">Progress tugas</h3><p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $completed }} dari {{ $total }} tugas selesai</p></div><span class="text-2xl font-black text-indigo-600">{{ $progress }}%</span></div>
-                <div class="mt-5 h-3 overflow-hidden rounded-full bg-gray-100"><div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all" style="width: {{ $progress }}%"></div></div>
+                <div class="mt-5 h-3 overflow-hidden rounded-full bg-gray-700"><div class="h-full rounded-full bg-slate-300 transition-all" style="width: {{ $progress }}%"></div></div>
             </section>
 
             <section class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
