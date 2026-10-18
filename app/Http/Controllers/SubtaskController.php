@@ -15,7 +15,10 @@ class SubtaskController extends Controller
         abort_unless($todo->user_id === Auth::id(), 403);
         Gate::authorize('view', $todo);
 
-        $data = $request->validate(['title' => 'required|string|max:255']);
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'due_date' => 'nullable|date',
+        ]);
         $todo->subtasks()->create($data);
 
         return back()->with('success', 'Subtask berhasil ditambahkan.');
@@ -26,7 +29,12 @@ class SubtaskController extends Controller
         abort_unless($subtask->todo->user_id === Auth::id(), 403);
         Gate::authorize('view', $subtask->todo);
 
-        $subtask->update(['completed' => ! $subtask->completed]);
+        $data = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'due_date' => 'nullable|date',
+        ]);
+
+        $subtask->update($data ?: ['completed' => ! $subtask->completed]);
 
         return back()->with('success', 'Status subtask diperbarui.');
     }

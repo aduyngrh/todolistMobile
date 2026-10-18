@@ -10,9 +10,9 @@ class Subtask extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['todo_id', 'title', 'completed'];
+    protected $fillable = ['todo_id', 'title', 'due_date', 'completed'];
 
-    protected $casts = ['completed' => 'boolean'];
+    protected $casts = ['due_date' => 'date', 'completed' => 'boolean'];
 
     public function todo(): BelongsTo
     {

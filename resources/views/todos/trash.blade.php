@@ -15,6 +15,17 @@
                 Todo di sini masih bisa dipulihkan. Hapus permanen hanya jika sudah yakin.
             </div>
 
+            <form method="GET" action="{{ route('todos.trash') }}" class="mb-6 flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:flex-row">
+                <label class="flex-1">
+                    <span class="sr-only">Cari todo terhapus</span>
+                    <input type="search" name="search" value="{{ request('search') }}" placeholder="Cari todo terhapus..." class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-rose-500 focus:ring-rose-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                </label>
+                <button type="submit" class="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-rose-700">Cari</button>
+                @if(request('search'))
+                    <a href="{{ route('todos.trash') }}" class="rounded-xl border border-gray-200 px-4 py-2.5 text-center text-sm font-bold text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">Reset</a>
+                @endif
+            </form>
+
             <div class="space-y-3">
                 @forelse($trashedTodos as $todo)
                     <div class="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:flex-row sm:items-center sm:justify-between">

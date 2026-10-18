@@ -63,6 +63,20 @@
                                     <input type="date" id="edit-todo-due-date" name="due_date" 
                                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
                                 </div>
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Mulai</label>
+                                        <input type="time" id="edit-todo-start-time" name="start_time" class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Selesai</label>
+                                        <input type="time" id="edit-todo-end-time" name="end_time" class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-200">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Pengingat</label>
+                                    <input type="datetime-local" id="edit-todo-reminder-at" name="reminder_at" class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-200">
+                                </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Prioritas</label>
                                     <select id="edit-todo-priority" name="priority" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
@@ -124,6 +138,11 @@
                         <input type="date" name="due_date" 
                                class="w-full bg-pink-50/50 border border-pink-100 rounded-2xl px-5 py-3.5 text-sm text-gray-800 focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all font-medium">
                     </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <input type="time" name="start_time" aria-label="Waktu mulai" class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-indigo-500 focus:ring-indigo-200">
+                        <input type="time" name="end_time" aria-label="Waktu selesai" class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-indigo-500 focus:ring-indigo-200">
+                    </div>
+                    <input type="datetime-local" name="reminder_at" aria-label="Waktu pengingat" class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-indigo-500 focus:ring-indigo-200">
                     <div class="flex-1 relative">
                         <select name="priority" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-2.5 text-sm text-gray-800 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
                             <option value="High">High Priority</option>
@@ -146,21 +165,21 @@
                     <div class="flex justify-between items-center mb-5">
                         <div class="flex items-center gap-2.5">
                             <span class="w-3.5 h-3.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-sm shadow-amber-300"></span>
-                            <h3 class="font-extrabold text-amber-900 text-sm tracking-wider uppercase">To Do / Pending</h3>
+                            <h3 class="font-extrabold text-amber-900 text-lg tracking-wide uppercase">To Do / Pending</h3>
                         </div>
                         <span id="count-todo" class="bg-white border border-amber-200 text-amber-800 font-black text-xs px-3 py-1 rounded-full shadow-sm">
-                            {{ $todos->where('completed', false)->count() }}
+                            {{ $todoItems->where('completed', false)->count() }}
                         </span>
                     </div>
 
                     <!-- Draggable List -->
                     <div id="todo-list" class="max-h-[70vh] min-h-[260px] space-y-4 overflow-y-auto pr-2" data-status="0">
-                        @forelse ($todos->where('completed', false) as $todo)
+                        <?php foreach ($todoItems->where('completed', false) as $todo) { ?>
                             <div class="task-card bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-md shadow-amber-50 border border-amber-100 hover:shadow-xl hover:border-amber-300 transition-all duration-200 cursor-grab active:cursor-grabbing group" 
                                  data-id="{{ $todo->id }}">
                                 <div class="flex items-start justify-between gap-3 mb-2">
                                     <div class="flex flex-col gap-1">
-                                        <span class="text-sm font-bold text-gray-800 leading-snug group-hover:text-indigo-600 transition">{{ $todo->title }}</span>
+                                        <span class="text-lg font-bold text-gray-800 leading-snug group-hover:text-indigo-600 transition">{{ $todo->title }}</span>
                                         <div class="flex gap-1 flex-wrap">
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider {{ $todo->category === 'Urgent' ? 'bg-rose-100 text-rose-700' : ($todo->category === 'Work' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700') }}">{{ $todo->category }}</span>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $todo->priority === 'High' ? 'bg-red-100 text-red-700' : ($todo->priority === 'Low' ? 'bg-gray-100 text-gray-600' : 'bg-yellow-100 text-yellow-700') }}">{{ $todo->priority }}</span>
@@ -178,7 +197,7 @@
                                         </form>
                                         <!-- Edit Icon -->
                                         <button type="button" class="edit-button p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg transition" title="Edit"
-                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}">
+                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}" data-start-time="{{ $todo->start_time }}" data-end-time="{{ $todo->end_time }}" data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536-6 6H9v-3.536z" />
                                             </svg>
@@ -199,11 +218,11 @@
                                         </form>
                                     </div>
                                 </div>
-                                @if($todo->description)
+                                <?php if ($todo->description) { ?>
                                     <div class="text-xs text-indigo-900 bg-indigo-50/70 p-3 rounded-xl border border-indigo-100/60 mb-3 whitespace-pre-line font-medium">
                                         💡 {{ $todo->description }}
                                     </div>
-                                @endif
+                                <?php } ?>
                                 <div class="mb-3 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4 dark:border-indigo-900 dark:bg-gray-800">
                                     <div class="mb-3 flex items-center justify-between">
                                         <div class="flex items-center gap-2">
@@ -213,30 +232,46 @@
                                                 <p class="text-[11px] text-gray-500">Pecah tugas ini menjadi langkah kecil</p>
                                             </div>
                                         </div>
-                                        <span class="rounded-full bg-white px-2.5 py-1 text-xs font-extrabold text-indigo-700 shadow-sm dark:bg-gray-900 dark:text-indigo-300">{{ $todo->subtasks->where('completed', true)->count() }}/{{ $todo->subtasks->count() }}</span>
+                                        @php
+                                            $subtaskTotal = $todo->subtasks->count();
+                                            $subtaskDone = $todo->subtasks->where('completed', true)->count();
+                                            $subtaskProgress = $subtaskTotal ? (int) round(($subtaskDone / $subtaskTotal) * 100) : 0;
+                                        @endphp
+                                        <span class="rounded-full bg-white px-2.5 py-1 text-xs font-extrabold text-indigo-700 shadow-sm dark:bg-gray-900 dark:text-indigo-300">{{ $subtaskDone }}/{{ $subtaskTotal }}</span>
                                     </div>
-                                    @forelse($todo->subtasks as $subtask)
+                                    <div class="mb-3 h-2 overflow-hidden rounded-full bg-indigo-100 dark:bg-gray-700" title="Progress subtask {{ $subtaskProgress }}%">
+                                        <div class="h-full rounded-full bg-indigo-500 transition-all" style="width: {{ $subtaskProgress }}%"></div>
+                                    </div>
+                                    <?php foreach ($todo->subtasks as $subtask) { ?>
                                         <div class="mb-2 flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm shadow-sm dark:bg-gray-900">
                                             <form method="POST" action="{{ route('subtasks.update', $subtask) }}">@csrf @method('PATCH')
                                                 <button type="submit" class="inline-flex h-7 w-7 items-center justify-center rounded-lg border {{ $subtask->completed ? 'border-emerald-300 bg-emerald-100 text-emerald-700' : 'border-gray-300 bg-gray-50 text-gray-400' }}" title="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}" aria-label="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg></button>
                                             </form>
-                                            <span class="flex-1 {{ $subtask->completed ? 'line-through text-gray-400' : 'font-medium text-gray-700 dark:text-gray-200' }}">{{ $subtask->title }}</span>
+                                            <span class="flex-1 text-base {{ $subtask->completed ? 'line-through text-gray-400' : 'font-medium text-gray-700 dark:text-gray-200' }}">
+                                                {{ $subtask->title }}
+                                                @if($subtask->due_date)
+                                                    <small class="ml-2 {{ !$subtask->completed && $subtask->due_date->isPast() && !$subtask->due_date->isToday() ? 'text-rose-600' : 'text-gray-400' }}">· {{ $subtask->due_date->format('d M Y') }}</small>
+                                                @endif
+                                            </span>
                                             <form method="POST" action="{{ route('subtasks.destroy', $subtask) }}">@csrf @method('DELETE')
                                                 <button type="submit" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-rose-100 hover:text-rose-600" title="Hapus subtask" aria-label="Hapus subtask"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/></svg></button>
                                             </form>
                                         </div>
-                                    @empty
+                                    <?php } ?>
+                                    <?php if ($todo->subtasks->isEmpty()) { ?>
                                         <p class="rounded-xl border border-dashed border-indigo-200 px-3 py-2 text-xs text-gray-500">Belum ada langkah. Tambahkan langkah pertama di bawah.</p>
-                                    @endforelse
+                                    <?php } ?>
                                     <form method="POST" action="{{ route('subtasks.store', $todo) }}" class="mt-3 flex gap-2">@csrf
                                         <label for="subtask-{{ $todo->id }}" class="sr-only">Nama langkah tugas</label>
                                         <input id="subtask-{{ $todo->id }}" name="title" required maxlength="255" placeholder="Contoh: Kumpulkan bahan..." class="min-w-0 flex-1 rounded-xl border-gray-200 px-3 py-2 text-xs focus:border-indigo-500 focus:ring-indigo-200" title="Tulis langkah kecil untuk tugas ini">
+                                        <label class="sr-only" for="subtask-due-{{ $todo->id }}">Tenggat langkah</label>
+                                        <input id="subtask-due-{{ $todo->id }}" name="due_date" type="date" class="w-32 rounded-xl border-gray-200 px-2 py-2 text-xs focus:border-indigo-500 focus:ring-indigo-200" title="Tenggat langkah">
                                         <button type="submit" class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white hover:bg-indigo-700" title="Tambah langkah" aria-label="Tambah langkah"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg> Tambah</button>
                                     </form>
                                 </div>
                                 <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400 font-semibold">
                                     <span>📅 {{ $todo->created_at->format('d M Y') }}</span>
-                                    @if($todo->due_date)
+                                    <?php if ($todo->due_date) { ?>
                                         @php
                                             $isOverdue = !$todo->completed && $todo->due_date->isPast() && !$todo->due_date->isToday();
                                             $isSoon = !$todo->completed && $todo->due_date->isToday() || (!$todo->completed && $todo->due_date->isFuture() && $todo->due_date->diffInDays(now()) <= 1);
@@ -244,14 +279,15 @@
                                         <span class="px-2 py-0.5 rounded font-bold {{ $isOverdue ? 'bg-rose-100 text-rose-700 animate-pulse' : ($isSoon ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600') }}">
                                             ⏰ {{ $todo->due_date->format('d M Y') }}
                                         </span>
-                                    @endif
+                                    <?php } ?>
                                 </div>
                             </div>
-                        @empty
+                        <?php } ?>
+                        <?php if ($todoItems->where('completed', false)->isEmpty()) { ?>
                             <div class="empty-state text-center py-12 border-2 border-dashed border-amber-300/60 rounded-2xl text-amber-700/60 text-xs font-semibold bg-amber-50/30">
                                 📌 Belum ada tugas. Yuk buat baru!
                             </div>
-                        @endforelse
+                        <?php } ?>
                     </div>
                 </div>
 
@@ -263,13 +299,13 @@
                             <h3 class="font-extrabold text-emerald-900 text-sm tracking-wider uppercase">Done / Selesai</h3>
                         </div>
                         <span id="count-done" class="bg-white border border-emerald-200 text-emerald-800 font-black text-xs px-3 py-1 rounded-full shadow-sm">
-                            {{ $todos->where('completed', true)->count() }}
+                            {{ $todoItems->where('completed', true)->count() }}
                         </span>
                     </div>
 
                     <!-- Draggable List -->
                     <div id="done-list" class="max-h-[70vh] min-h-[260px] space-y-4 overflow-y-auto pr-2" data-status="1">
-                        @forelse ($todos->where('completed', true) as $todo)
+                        <?php foreach ($todoItems->where('completed', true) as $todo) { ?>
                             <div class="task-card bg-white/70 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-emerald-100/60 hover:bg-white hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group opacity-90 hover:opacity-100" 
                                  data-id="{{ $todo->id }}">
                                 <div class="flex items-start justify-between gap-3 mb-2">
@@ -295,7 +331,7 @@
                                         </form>
                                         <!-- Edit Icon -->
                                         <button type="button" class="edit-button p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg transition" title="Edit"
-                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}">
+                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}" data-start-time="{{ $todo->start_time }}" data-end-time="{{ $todo->end_time }}" data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536-6 6H9v-3.536z" />
                                             </svg>
@@ -321,11 +357,12 @@
                                     <span class="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md font-bold">✓ Selesai</span>
                                 </div>
                             </div>
-                        @empty
+                        <?php } ?>
+                        <?php if ($todoItems->where('completed', true)->isEmpty()) { ?>
                             <div class="empty-state text-center py-12 border-2 border-dashed border-emerald-300/60 rounded-2xl text-emerald-700/60 text-xs font-semibold bg-emerald-50/30">
                                 🎉 Belum ada tugas selesai.
                             </div>
-                        @endforelse
+                        <?php } ?>
                     </div>
                 </div>
 
@@ -337,7 +374,7 @@
                             <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">{{ $archivedTodos->count() }}</span>
                         </div>
                         <div class="space-y-3">
-                            @foreach($archivedTodos as $todo)
+                            <?php foreach ($archivedTodos as $todo): ?>
                                 <div class="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-900">
                                     <div>
                                         <p class="font-semibold text-gray-800 dark:text-gray-100">{{ $todo->title }}</p>
@@ -348,11 +385,16 @@
                                         <button type="submit" class="rounded-xl bg-indigo-100 px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-600 hover:text-white">Pulihkan</button>
                                     </form>
                                 </div>
-                            @endforeach
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 @endif
             </div>
+            @if($todos->hasPages())
+                <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                    {{ $todos->links() }}
+                </div>
+            @endif
         </div>
     </div>
 
@@ -370,13 +412,16 @@
 
     <!-- Script Drag & Drop Auto Update Status -->
     <script>
-        function openEditModal(id, title, description, category, dueDate, priority) {
+        function openEditModal(id, title, description, category, dueDate, priority, startTime, endTime, reminderAt) {
             const modal = document.getElementById('edit-modal');
             const form = document.getElementById('edit-todo-form');
             const inputTitle = document.getElementById('edit-todo-title');
             const textareaDesc = document.getElementById('edit-todo-description');
             const selectCategory = document.getElementById('edit-todo-category');
             const inputDueDate = document.getElementById('edit-todo-due-date');
+            const inputStartTime = document.getElementById('edit-todo-start-time');
+            const inputEndTime = document.getElementById('edit-todo-end-time');
+            const inputReminderAt = document.getElementById('edit-todo-reminder-at');
             const selectPriority = document.getElementById('edit-todo-priority');
             
             form.action = `/todos/${id}`;
@@ -384,6 +429,9 @@
             textareaDesc.value = description || '';
             selectCategory.value = category || 'Personal';
             inputDueDate.value = dueDate || '';
+            inputStartTime.value = startTime || '';
+            inputEndTime.value = endTime || '';
+            inputReminderAt.value = reminderAt || '';
             selectPriority.value = priority || 'Medium';
             modal.classList.remove('hidden');
         }
@@ -422,6 +470,9 @@
                     button.dataset.category,
                     button.dataset.dueDate,
                     button.dataset.priority,
+                    button.dataset.startTime,
+                    button.dataset.endTime,
+                    button.dataset.reminderAt,
                 ));
             });
 

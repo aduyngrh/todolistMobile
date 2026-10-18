@@ -39,14 +39,16 @@ class TodoController extends Controller
         $todos = $query
             ->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END")
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
+        $todoItems = $todos->getCollection();
 
         $archivedTodos = \App\Models\Todo::where('user_id', Auth::id())
             ->whereNotNull('archived_at')
             ->orderByDesc('archived_at')
             ->get();
 
-        return view('todos.index', compact('todos', 'archivedTodos'));
+        return view('todos.index', compact('todos', 'todoItems', 'archivedTodos'));
     }
 
     public function calendar(Request $request)
@@ -63,6 +65,24 @@ class TodoController extends Controller
             ->groupBy(fn ($todo) => $todo->due_date->format('Y-m-d'));
 
         return view('todos.calendar', compact('monthDate', 'todos'));
+    }
+
+    public function planner(Request $request)
+    {
+        $date = $request->input('date', now()->toDateString());
+        abort_unless(preg_match('/^\d{4}-\d{2}-\d{2}$/', $date), 404);
+
+        $plannerDate = \Carbon\Carbon::createFromFormat('!Y-m-d', $date)->startOfDay();
+        $todos = \App\Models\Todo::where('user_id', Auth::id())
+            ->whereNull('archived_at')
+            ->whereDate('due_date', $date)
+            ->with('subtasks')
+            ->orderByRaw('start_time IS NULL')
+            ->orderBy('start_time')
+            ->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END")
+            ->get();
+
+        return view('todos.planner', compact('plannerDate', 'todos'));
     }
 
     /**
@@ -83,6 +103,9 @@ class TodoController extends Controller
             'description' => 'nullable|string',
             'category' => 'required|string|in:Work,Personal,Urgent',
             'due_date' => 'nullable|date',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after:start_time',
+            'reminder_at' => 'nullable|date',
             'priority' => 'required|string|in:High,Medium,Low',
         ]);
 
@@ -92,6 +115,9 @@ class TodoController extends Controller
             'description' => $request->description,
             'category' => $request->category,
             'due_date' => $request->due_date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'reminder_at' => $request->reminder_at,
             'priority' => $request->priority,
         ]);
 
@@ -133,10 +159,19 @@ class TodoController extends Controller
         if ($request->has('due_date')) {
             $todo->due_date = $request->due_date;
         }
+        if ($request->has('start_time')) {
+            $todo->start_time = $request->start_time;
+        }
+        if ($request->has('end_time')) {
+            $todo->end_time = $request->end_time;
+        }
+        if ($request->has('reminder_at')) {
+            $todo->reminder_at = $request->reminder_at;
+        }
         if ($request->has('priority')) {
             $todo->priority = $request->priority;
         }
-        if (! $request->has('title') && ! $request->has('description') && ! $request->has('category') && ! $request->has('due_date') && ! $request->has('priority')) {
+        if (! $request->has('title') && ! $request->has('description') && ! $request->has('category') && ! $request->has('due_date') && ! $request->has('start_time') && ! $request->has('end_time') && ! $request->has('reminder_at') && ! $request->has('priority')) {
             $todo->completed = ! $todo->completed;
         }
         $todo->save();
@@ -162,10 +197,18 @@ class TodoController extends Controller
         return redirect()->route('todos.index')->with('success', 'Tugas berhasil dipulihkan.');
     }
 
-    public function trash()
+    public function trash(Request $request)
     {
-        $trashedTodos = \App\Models\Todo::onlyTrashed()
-            ->where('user_id', Auth::id())
+        $query = \App\Models\Todo::onlyTrashed()->where('user_id', Auth::id());
+
+        if ($search = $request->string('search')->trim()->toString()) {
+            $query->where(function ($query) use ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $trashedTodos = $query
             ->latest('deleted_at')
             ->get();
 

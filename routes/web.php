@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TodoController;
+use App\Http\Controllers\DailyNoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,6 +21,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('todos', TodoController::class);
     Route::get('/calendar', [TodoController::class, 'calendar'])->name('todos.calendar');
+    Route::get('/planner', [TodoController::class, 'planner'])->name('todos.planner');
+    Route::get('/daily-notes', [DailyNoteController::class, 'index'])->name('daily-notes.index');
+    Route::post('/daily-notes', [DailyNoteController::class, 'store'])->name('daily-notes.store');
+    Route::patch('/daily-notes/{dailyNote}', [DailyNoteController::class, 'update'])->name('daily-notes.update');
+    Route::delete('/daily-notes/{dailyNote}', [DailyNoteController::class, 'destroy'])->name('daily-notes.destroy');
     Route::get('/trash', [TodoController::class, 'trash'])->name('todos.trash');
     Route::patch('/trash/{todo}/restore', [TodoController::class, 'restoreFromTrash'])->withTrashed()->name('todos.trash.restore');
     Route::delete('/trash/{todo}', [TodoController::class, 'forceDestroy'])->withTrashed()->name('todos.trash.force-destroy');

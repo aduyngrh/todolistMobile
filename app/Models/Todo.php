@@ -14,7 +14,10 @@ class Todo extends Model
 
     public function subtasks(): HasMany
     {
-        return $this->hasMany(Subtask::class);
+        return $this->hasMany(Subtask::class)
+            ->orderByRaw('due_date IS NULL')
+            ->orderBy('due_date')
+            ->orderBy('created_at');
     }
 
     /**
@@ -26,6 +29,9 @@ class Todo extends Model
         'description',
         'category',
         'due_date',
+        'start_time',
+        'end_time',
+        'reminder_at',
         'priority',
         'completed',
         'archived_at',
@@ -33,6 +39,7 @@ class Todo extends Model
 
     protected $casts = [
         'due_date' => 'date',
+        'reminder_at' => 'datetime',
         'archived_at' => 'datetime',
     ];
 }

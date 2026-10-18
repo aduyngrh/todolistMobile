@@ -21,6 +21,12 @@
                     <x-nav-link :href="route('todos.calendar')" :active="request()->routeIs('todos.calendar')">
                         {{ __('Calendar') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('todos.planner')" :active="request()->routeIs('todos.planner')">
+                        {{ __('Planner') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('daily-notes.index')" :active="request()->routeIs('daily-notes.*')">
+                        {{ __('Catatan Daily') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('todos.trash')" :active="request()->routeIs('todos.trash')">
                         {{ __('Trash') }}
                     </x-nav-link>
@@ -71,6 +77,12 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('todos.calendar')" :active="request()->routeIs('todos.calendar')">
                 {{ __('Calendar') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('todos.planner')" :active="request()->routeIs('todos.planner')">
+                {{ __('Planner') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('daily-notes.index')" :active="request()->routeIs('daily-notes.*')">
+                {{ __('Catatan Daily') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('todos.trash')" :active="request()->routeIs('todos.trash')">
                 {{ __('Trash') }}
