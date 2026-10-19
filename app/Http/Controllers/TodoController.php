@@ -210,7 +210,8 @@ class TodoController extends Controller
 
         $trashedTodos = $query
             ->latest('deleted_at')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('todos.trash', compact('trashedTodos'));
     }

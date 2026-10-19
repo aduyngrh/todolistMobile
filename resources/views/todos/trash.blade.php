@@ -5,7 +5,6 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-rose-600">Tempat sampah</p>
                 <h2 class="mt-1 text-2xl font-black tracking-tight text-gray-900 dark:text-white">Todo terhapus</h2>
             </div>
-            <a href="{{ route('todos.index') }}" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700">Kembali ke Todo</a>
         </div>
     </x-slot>
 
@@ -51,6 +50,11 @@
                     <div class="rounded-2xl border-2 border-dashed border-gray-300 bg-white p-12 text-center text-sm font-semibold text-gray-500 dark:border-gray-700 dark:bg-gray-900">Tempat sampah kosong.</div>
                 @endforelse
             </div>
+            @if($trashedTodos->hasPages())
+                <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                    {{ $trashedTodos->links() }}
+                </div>
+            @endif
         </div>
     </div>
 

@@ -15,7 +15,7 @@ class DailyNoteController extends Controller
 
         $noteDate = \Carbon\Carbon::createFromFormat('!Y-m-d', $date)->startOfDay();
         $notes = DailyNote::where('user_id', Auth::id())
-            ->whereDate('note_date', $date)
+            ->orderByDesc('note_date')
             ->latest()
             ->get();
 
@@ -32,7 +32,8 @@ class DailyNoteController extends Controller
         $data['user_id'] = Auth::id();
         DailyNote::create($data);
 
-        return back()->with('success', 'Catatan berhasil ditambahkan.');
+        return redirect()->route('daily-notes.index')
+            ->with('success', 'Catatan berhasil ditambahkan.');
     }
 
     public function destroy(DailyNote $dailyNote)
@@ -53,6 +54,7 @@ class DailyNoteController extends Controller
             'content' => 'required|string|max:10000',
         ]));
 
-        return back()->with('success', 'Catatan berhasil diperbarui.');
+        return redirect()->route('daily-notes.index')
+            ->with('success', 'Catatan berhasil diperbarui.');
     }
 }

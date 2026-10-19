@@ -51,14 +51,15 @@
                 </form>
             </div>
 
-            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="max-h-[70vh] overflow-y-auto pr-2">
+                <div class="grid grid-cols-1 items-start gap-10 sm:grid-cols-2 lg:grid-cols-3">
                 @forelse($notes as $note)
-                    <article
-                        class="relative min-h-48 w-80 shrink-0 snap-start overflow-hidden rounded-xl border border-amber-200 bg-[#fffdf5] p-5 shadow-md dark:border-gray-800 dark:bg-gray-900 sm:w-96">
+                        <article
+                            class="relative flex h-fit max-h-[28rem] w-full flex-col overflow-hidden rounded-xl border border-amber-200 bg-[#fffdf5] p-5 shadow-md dark:border-gray-800 dark:bg-gray-900">
                         <div class="absolute inset-x-0 top-0 h-1 bg-amber-400"></div>
                         <h3 class="pr-6 text-lg font-black text-gray-800 dark:text-white">
                             {{ $note->title ?: 'Catatan harian' }}</h3>
-                        <p class="mt-3 whitespace-pre-line text-sm leading-7 text-gray-700 dark:text-gray-300">
+                            <p class="mt-3 max-h-56 overflow-y-auto whitespace-pre-line pr-2 text-sm leading-7 text-gray-700 dark:text-gray-300">
                             {{ $note->content }}</p>
                         <div
                             class="mt-5 flex items-center justify-between gap-3 border-t border-amber-100 pt-3 text-xs text-gray-400 dark:border-gray-800">
@@ -80,6 +81,7 @@
                         class="w-full rounded-2xl border-2 border-dashed border-amber-300 bg-white/60 p-12 text-center text-sm font-semibold text-amber-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
                         Belum ada catatan untuk hari ini.</div>
                 @endforelse
+                </div>
             </div>
         </div>
     </div>

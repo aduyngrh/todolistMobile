@@ -4,8 +4,7 @@
             <div>
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Rencana harian</p>
                 <h2 class="mt-1 text-2xl font-black text-gray-900 dark:text-white">Daily Planner</h2>
-            </div>
-            <a href="{{ route('todos.index') }}" class="rounded-xl bg-slate-800 px-4 py-2 text-center text-sm font-bold text-white hover:bg-slate-900">Todo List</a>
+        </div>
         </div>
     </x-slot>
 
