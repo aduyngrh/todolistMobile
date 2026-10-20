@@ -161,13 +161,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 
                 <!-- Column: To Do -->
-                <div class="bg-slate-100 p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/60 dark:bg-gray-900 dark:border-gray-800">
+                <div class="bg-slate-100 p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/60 dark:bg-slate-900/80 dark:border-slate-800 dark:shadow-black/20">
                     <div class="flex justify-between items-center mb-5">
                         <div class="flex items-center gap-2.5">
-                            <span class="w-3.5 h-3.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-sm shadow-amber-300"></span>
-                            <h3 class="font-extrabold text-amber-900 text-lg tracking-wide uppercase">To Do / Pending</h3>
+                            <span class="w-3.5 h-3.5 rounded-full bg-amber-500/80 shadow-sm shadow-amber-900/20 dark:bg-amber-700/70"></span>
+                            <h3 class="font-extrabold text-amber-900 text-lg tracking-wide uppercase dark:text-amber-200">To Do / Pending</h3>
                         </div>
-                        <span id="count-todo" class="bg-white border border-amber-200 text-amber-800 font-black text-xs px-3 py-1 rounded-full shadow-sm">
+                        <span id="count-todo" class="rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-black text-amber-800 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-amber-200">
                             {{ $todoItems->where('completed', false)->count() }}
                         </span>
                     </div>
@@ -175,11 +175,11 @@
                     <!-- Draggable List -->
                     <div id="todo-list" class="max-h-[70vh] min-h-[260px] space-y-4 overflow-y-auto pr-2" data-status="0">
                         <?php foreach ($todoItems->where('completed', false) as $todo) { ?>
-                            <div class="task-card bg-white/90 backdrop-blur-sm p-5 rounded-2xl shadow-md shadow-amber-50 border border-amber-100 hover:shadow-xl hover:border-amber-300 transition-all duration-200 cursor-grab active:cursor-grabbing group" 
+                            <div class="task-card cursor-grab rounded-2xl border border-slate-200 bg-slate-50/90 p-5 shadow-md shadow-slate-950/10 backdrop-blur-sm transition-all duration-200 hover:border-slate-300 hover:shadow-lg active:cursor-grabbing group dark:border-slate-600 dark:bg-slate-200 dark:shadow-black/20 dark:hover:border-slate-500" 
                                  data-id="{{ $todo->id }}">
                                 <div class="flex items-start justify-between gap-3 mb-2">
                                     <div class="flex flex-col gap-1">
-                                        <span class="text-lg font-bold text-gray-800 leading-snug group-hover:text-indigo-600 transition">{{ $todo->title }}</span>
+                                        <span class="text-lg font-bold leading-snug text-gray-800 transition group-hover:text-slate-900 dark:text-slate-950 dark:group-hover:text-black">{{ $todo->title }}</span>
                                         <div class="flex gap-1 flex-wrap">
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider {{ $todo->category === 'Urgent' ? 'bg-rose-100 text-rose-700' : ($todo->category === 'Work' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700') }}">{{ $todo->category }}</span>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $todo->priority === 'High' ? 'bg-red-100 text-red-700' : ($todo->priority === 'Low' ? 'bg-gray-100 text-gray-600' : 'bg-yellow-100 text-yellow-700') }}">{{ $todo->priority }}</span>
@@ -219,17 +219,17 @@
                                     </div>
                                 </div>
                                 <?php if ($todo->description) { ?>
-                                    <div class="text-xs text-indigo-900 bg-indigo-50/70 p-3 rounded-xl border border-indigo-100/60 mb-3 whitespace-pre-line font-medium">
+                                    <div class="mb-3 rounded-xl border border-slate-200 bg-slate-100/80 p-3 text-xs font-medium text-slate-700 whitespace-pre-line dark:border-slate-300 dark:bg-slate-100 dark:text-slate-950">
                                         💡 {{ $todo->description }}
                                     </div>
                                 <?php } ?>
-                                <div class="mb-3 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4 dark:border-indigo-900 dark:bg-gray-800">
+                                <div class="mb-3 rounded-2xl border border-slate-300 bg-slate-100/70 p-4 dark:border-slate-300 dark:bg-slate-100">
                                     <div class="mb-3 flex items-center justify-between">
                                         <div class="flex items-center gap-2">
-                                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700" aria-hidden="true"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
+                                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300" aria-hidden="true"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
                                             <div>
-                                                <p class="text-xs font-extrabold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Langkah tugas</p>
-                                                <p class="text-[11px] text-gray-500">Pecah tugas ini menjadi langkah kecil</p>
+                                                <p class="text-xs font-extrabold uppercase tracking-wide text-slate-600 dark:text-slate-950">Langkah tugas</p>
+                                                <p class="text-[11px] text-gray-500 dark:text-slate-700">Pecah tugas ini menjadi langkah kecil</p>
                                             </div>
                                         </div>
                                         @php
@@ -237,17 +237,17 @@
                                             $subtaskDone = $todo->subtasks->where('completed', true)->count();
                                             $subtaskProgress = $subtaskTotal ? (int) round(($subtaskDone / $subtaskTotal) * 100) : 0;
                                         @endphp
-                                        <span class="rounded-full bg-white px-2.5 py-1 text-xs font-extrabold text-indigo-700 shadow-sm dark:bg-gray-900 dark:text-indigo-300">{{ $subtaskDone }}/{{ $subtaskTotal }}</span>
+                                        <span class="rounded-full bg-white px-2.5 py-1 text-xs font-extrabold text-slate-600 shadow-sm dark:bg-white dark:text-slate-950">{{ $subtaskDone }}/{{ $subtaskTotal }}</span>
                                     </div>
-                                    <div class="mb-3 h-2 overflow-hidden rounded-full bg-indigo-100 dark:bg-gray-700" title="Progress subtask {{ $subtaskProgress }}%">
-                                        <div class="h-full rounded-full bg-indigo-500 transition-all" style="width: {{ $subtaskProgress }}%"></div>
+                                    <div class="mb-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800" title="Progress subtask {{ $subtaskProgress }}%">
+                                        <div class="h-full rounded-full bg-slate-500 transition-all dark:bg-slate-500" style="width: {{ $subtaskProgress }}%"></div>
                                     </div>
                                     <?php foreach ($todo->subtasks as $subtask) { ?>
-                                        <div class="mb-2 flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm shadow-sm dark:bg-gray-900">
+                                        <div class="mb-2 flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm shadow-sm dark:bg-white">
                                             <form method="POST" action="{{ route('subtasks.update', $subtask) }}">@csrf @method('PATCH')
                                                 <button type="submit" class="inline-flex h-7 w-7 items-center justify-center rounded-lg border {{ $subtask->completed ? 'border-emerald-300 bg-emerald-100 text-emerald-700' : 'border-gray-300 bg-gray-50 text-gray-400' }}" title="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}" aria-label="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg></button>
                                             </form>
-                                            <span class="flex-1 text-base {{ $subtask->completed ? 'line-through text-gray-400' : 'font-medium text-gray-700 dark:text-gray-200' }}">
+                                            <span class="flex-1 text-base {{ $subtask->completed ? 'line-through text-gray-500' : 'font-medium text-slate-950' }}">
                                                 {{ $subtask->title }}
                                                 @if($subtask->due_date)
                                                     <small class="ml-2 {{ !$subtask->completed && $subtask->due_date->isPast() && !$subtask->due_date->isToday() ? 'text-rose-600' : 'text-gray-400' }}">· {{ $subtask->due_date->format('d M Y') }}</small>

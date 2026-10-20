@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-xs font-bold uppercase tracking-widest text-amber-600">Ruang refleksi</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-amber-600">Ruang Daily</p>
                 <h2 class="mt-1 text-2xl font-black text-gray-900 dark:text-white">Catatan Daily</h2>
             </div>
             <button type="button" id="open-note-form"

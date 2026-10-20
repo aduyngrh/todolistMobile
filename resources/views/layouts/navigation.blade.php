@@ -25,7 +25,7 @@
                         {{ __('Planner') }}
                     </x-nav-link>
                     <x-nav-link :href="route('daily-notes.index')" :active="request()->routeIs('daily-notes.*')">
-                        {{ __('Catatan Daily') }}
+                        {{ __('Daily Notes') }}
                     </x-nav-link>
                     <x-nav-link :href="route('todos.trash')" :active="request()->routeIs('todos.trash')">
                         {{ __('Trash') }}
