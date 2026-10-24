@@ -51,8 +51,34 @@
                 </form>
             </div>
 
-            <div class="max-h-[70vh] overflow-y-auto pr-2">
-                <div class="grid grid-cols-1 items-start gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            <form method="GET" action="{{ route('daily-notes.index') }}"
+                class="grid grid-cols-1 gap-3 rounded-2xl border border-amber-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:grid-cols-2 lg:grid-cols-3">
+                <label class="sm:col-span-2 lg:col-span-3">
+                    <span class="mb-1 block text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Cari catatan</span>
+                    <input type="search" name="search" value="{{ request('search') }}" placeholder="Cari judul atau isi catatan..."
+                        class="w-full rounded-xl border-amber-200 bg-amber-50/50 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-amber-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                </label>
+                <label>
+                    <span class="mb-1 block text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Dari tanggal</span>
+                    <input type="date" name="from_date" value="{{ request('from_date') }}"
+                        class="w-full rounded-xl border-amber-200 bg-amber-50/50 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-amber-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                </label>
+                <label>
+                    <span class="mb-1 block text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Sampai tanggal</span>
+                    <input type="date" name="to_date" value="{{ request('to_date') }}"
+                        class="w-full rounded-xl border-amber-200 bg-amber-50/50 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-amber-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                </label>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-amber-700">Terapkan</button>
+                    @if(request()->hasAny(['search', 'from_date', 'to_date']))
+                        <a href="{{ route('daily-notes.index') }}"
+                            class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">Reset</a>
+                    @endif
+                </div>
+            </form>
+
+            <div>
+                <div class="grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @forelse($notes as $note)
                         <article
                             class="relative flex h-fit max-h-[28rem] w-full flex-col overflow-hidden rounded-xl border border-amber-200 bg-[#fffdf5] p-5 shadow-md dark:border-gray-800 dark:bg-gray-900">
@@ -78,10 +104,20 @@
                     </article>
                 @empty
                     <div
-                        class="w-full rounded-2xl border-2 border-dashed border-amber-300 bg-white/60 p-12 text-center text-sm font-semibold text-amber-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-                        Belum ada catatan untuk hari ini.</div>
+                        class="col-span-full w-full rounded-2xl border-2 border-dashed border-amber-300 bg-white/60 p-12 text-center text-sm font-semibold text-amber-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                        @if(request()->hasAny(['search', 'from_date', 'to_date']))
+                            Tidak ada catatan yang cocok dengan pencarian atau rentang tanggal tersebut.
+                        @else
+                            Belum ada catatan.
+                        @endif
+                    </div>
                 @endforelse
                 </div>
+                @if($notes->hasPages())
+                    <div class="mt-6 rounded-2xl border border-amber-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        {{ $notes->links() }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>

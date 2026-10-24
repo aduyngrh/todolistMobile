@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DailyNote;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,11 +14,36 @@ class DailyNoteController extends Controller
         $date = $request->input('date', now()->toDateString());
         abort_unless(preg_match('/^\d{4}-\d{2}-\d{2}$/', $date), 404);
 
-        $noteDate = \Carbon\Carbon::createFromFormat('!Y-m-d', $date)->startOfDay();
-        $notes = DailyNote::where('user_id', Auth::id())
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'from_date' => ['nullable', 'date_format:Y-m-d'],
+            'to_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from_date'],
+        ]);
+
+        $noteDate = Carbon::createFromFormat('!Y-m-d', $date)->startOfDay();
+        $query = DailyNote::where('user_id', Auth::id());
+
+        if (! empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $query->where(function ($query) use ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        if (! empty($filters['from_date'])) {
+            $query->where('note_date', '>=', $filters['from_date']);
+        }
+
+        if (! empty($filters['to_date'])) {
+            $query->where('note_date', '<=', $filters['to_date']);
+        }
+
+        $notes = $query
             ->orderByDesc('note_date')
             ->latest()
-            ->get();
+            ->paginate(9)
+            ->withQueryString();
 
         return view('daily-notes.index', compact('date', 'noteDate', 'notes'));
     }
