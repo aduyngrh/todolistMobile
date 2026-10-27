@@ -14,9 +14,6 @@
         </div>
     </x-slot>
 
-    <!-- Script SortableJS via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-
     <div class="min-h-screen bg-slate-50 py-8 transition-colors dark:bg-gray-950">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <form method="GET" action="{{ route('todos.index') }}" class="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
