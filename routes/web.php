@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TodoController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DailyNoteController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/trash/{todo}', [TodoController::class, 'forceDestroy'])->withTrashed()->name('todos.trash.force-destroy');
     Route::patch('/todos/{todo}/archive', [TodoController::class, 'archive'])->name('todos.archive');
     Route::patch('/todos/{todo}/restore', [TodoController::class, 'restore'])->withTrashed()->name('todos.restore');
+    Route::post('/todos/{todo}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('/todos/{todo}/subtasks', [SubtaskController::class, 'store'])->name('subtasks.store');
     Route::patch('/subtasks/{subtask}', [SubtaskController::class, 'update'])->name('subtasks.update');
     Route::delete('/subtasks/{subtask}', [SubtaskController::class, 'destroy'])->name('subtasks.destroy');

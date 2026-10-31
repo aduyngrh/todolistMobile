@@ -15,7 +15,7 @@ class TodoController extends Controller
     {
         $query = \App\Models\Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
-            ->with('subtasks');
+            ->with(['subtasks', 'comments.user', 'comments.children.user']);
 
         if ($search = $request->string('search')->trim()->toString()) {
             $query->where(function ($query) use ($search) {

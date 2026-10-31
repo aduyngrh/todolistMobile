@@ -12,6 +12,11 @@ class Todo extends Model
     /** @use HasFactory<\Database\Factories\TodoFactory> */
     use HasFactory, SoftDeletes;
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->whereNull('parent_id')->oldest();
+    }
+
     public function subtasks(): HasMany
     {
         return $this->hasMany(Subtask::class)

@@ -266,6 +266,7 @@
                                         <button type="submit" class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white hover:bg-indigo-700" title="Tambah langkah" aria-label="Tambah langkah"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg> Tambah</button>
                                     </form>
                                 </div>
+                                <x-comment-thread :todo="$todo" />
                                 <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400 font-semibold">
                                     <span>📅 {{ $todo->created_at->format('d M Y') }}</span>
                                     <?php if ($todo->due_date) { ?>
@@ -349,6 +350,7 @@
                                         💡 {{ $todo->description }}
                                     </div>
                                 @endif
+                                <x-comment-thread :todo="$todo" />
                                 <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400 font-semibold">
                                     <span>📅 {{ $todo->created_at->format('d M Y') }}</span>
                                     <span class="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md font-bold">✓ Selesai</span>
