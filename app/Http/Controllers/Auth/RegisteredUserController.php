@@ -9,6 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -28,6 +30,17 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $throttleKey = $this->throttleKey();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            throw ValidationException::withMessages([
+                'email' => trans('auth.throttle', [
+                    'seconds' => RateLimiter::availableIn($throttleKey),
+                    'minutes' => ceil(RateLimiter::availableIn($throttleKey) / 60),
+                ]),
+            ]);
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
@@ -42,6 +55,16 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
+        RateLimiter::hit($throttleKey);
+
         return redirect()->route('login')->with('status', 'Akun berhasil dibuat. Silakan login.');
+    }
+
+    /**
+     * Get the rate limiting throttle key for registration.
+     */
+    private function throttleKey(): string
+    {
+        return Str::lower(request()->ip());
     }
 }

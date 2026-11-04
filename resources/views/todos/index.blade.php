@@ -87,7 +87,7 @@
                                 <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-base font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 sm:w-auto sm:text-sm transition">
                                     Simpan
                                 </button>
-                                <button type="button" onclick="closeEditModal()" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-200 px-5 py-2.5 bg-white text-base font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm transition">
+                                <button type="button" id="close-edit-modal-btn" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-200 px-5 py-2.5 bg-white text-base font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm transition">
                                     Batal
                                 </button>
                             </div>
@@ -460,6 +460,7 @@
             addModal.addEventListener('click', (event) => {
                 if (event.target === addModal) closeAddModal();
             });
+            document.getElementById('close-edit-modal-btn').addEventListener('click', () => closeEditModal());
 
             document.querySelectorAll('.edit-button').forEach((button) => {
                 button.addEventListener('click', () => openEditModal(
