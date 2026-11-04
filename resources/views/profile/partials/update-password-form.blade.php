@@ -5,19 +5,13 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Gunakan password panjang agar akun tetap aman.
+            Masukkan password baru untuk mengganti password akun.
         </p>
     </header>
 
     <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
         @csrf
         @method('put')
-
-        <div>
-            <x-input-label for="update_password_current_password" value="Password saat ini" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-2 block w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 focus:border-slate-500 focus:ring-slate-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
 
         <div>
             <x-input-label for="update_password_password" value="Password baru" />
