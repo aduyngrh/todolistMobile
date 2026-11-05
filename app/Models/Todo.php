@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\TodoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Todo extends Model
 {
-    /** @use HasFactory<\Database\Factories\TodoFactory> */
+    /** @use HasFactory<TodoFactory> */
     use HasFactory, SoftDeletes;
 
     public function comments(): HasMany
@@ -28,6 +30,11 @@ class Todo extends Model
     /**
      * The attributes that are mass assignable.
      */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     protected $fillable = [
         'user_id',
         'title',
