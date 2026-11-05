@@ -35,6 +35,11 @@ class Todo extends Model
     /**
      * The attributes that are mass assignable.
      */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     protected $fillable = [
         'user_id',
         'title',
