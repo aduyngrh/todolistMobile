@@ -1,6 +1,7 @@
 <?php
 
-it('redirects guests to login', function () {
-    $this->get('/')
-        ->assertRedirect(route('login'));
+it('redirects guests to the login page', function () {
+    $response = $this->get('/');
+
+    $response->assertRedirect(route('login'));
 });

@@ -1,28 +1,30 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-                <h2 class="font-bold text-2xl text-gray-900 tracking-tight flex items-center gap-2 dark:text-white">
-                    <span>✨</span> My Task Board
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div class="space-y-2">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-indigo-600 dark:text-indigo-400">Workspace pribadi</p>
+                <h2 class="flex items-center gap-3 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-xl dark:bg-indigo-950">✨</span>
+                    My Task Board
                 </h2>
-                <p class="text-sm text-gray-500 mt-0.5">Tarik dan lepas (drag & drop) tugas antar kolom untuk mengubah status.</p>
+                <p class="max-w-xl text-sm text-slate-500 dark:text-slate-400">Atur prioritas harian, pecah tugas menjadi langkah kecil, lalu selesaikan satu per satu.</p>
             </div>
-            <div class="flex items-center gap-2 bg-white border border-gray-200/80 rounded-xl px-3.5 py-1.5 shadow-sm text-xs font-semibold text-gray-600">
-                <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                <span>{{ $todos->count() }} Total Tugas</span>
+            <div class="flex w-fit items-center gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-bold text-indigo-700 shadow-sm dark:border-indigo-900 dark:bg-indigo-950/50 dark:text-indigo-300">
+                <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-indigo-500"></span>
+                <span>{{ $todos->count() }} tugas aktif</span>
             </div>
         </div>
     </x-slot>
 
-    <div class="min-h-screen bg-slate-50 py-8 transition-colors dark:bg-gray-950">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <form method="GET" action="{{ route('todos.index') }}" class="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+    <div class="min-h-screen bg-[radial-gradient(circle_at_top_right,_#eef2ff,_transparent_32%),#f8fafc] py-6 transition-colors dark:bg-[radial-gradient(circle_at_top_right,_#1e1b4b,_transparent_30%),#020617] sm:py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <form method="GET" action="{{ route('todos.index') }}" class="mb-6 rounded-3xl border border-slate-200/80 bg-white/95 p-4 shadow-lg shadow-slate-200/40 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-black/20 sm:p-5">
                 <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
                     <label class="md:col-span-2"><span class="sr-only">Cari tugas</span><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari judul atau deskripsi..." class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-200"></label>
                     <select name="status" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua status</option><option value="pending" @selected(request('status') === 'pending')>Belum selesai</option><option value="done" @selected(request('status') === 'done')>Selesai</option></select>
                     <select name="priority" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua prioritas</option><option value="High" @selected(request('priority') === 'High')>High</option><option value="Medium" @selected(request('priority') === 'Medium')>Medium</option><option value="Low" @selected(request('priority') === 'Low')>Low</option></select>
                     <select name="category" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua kategori</option><option value="Work" @selected(request('category') === 'Work')>Work</option><option value="Personal" @selected(request('category') === 'Personal')>Personal</option><option value="Urgent" @selected(request('category') === 'Urgent')>Urgent</option></select>
-                    <div class="flex gap-2 md:col-span-3"><button type="submit" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Cari / Filter</button><a href="{{ route('todos.index') }}" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-gray-100">Reset</a></div>
+                    <div class="flex flex-wrap gap-2 md:col-span-3"><button type="submit" class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500">Cari / Filter</button><a href="{{ route('todos.index') }}" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-600 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">Reset</a></div>
                 </div>
             </form>
             
@@ -97,9 +99,13 @@
             </div>
 
             <!-- Add Task Popup -->
-            <div class="mb-8 flex justify-end">
-                <button type="button" id="open-add-modal" class="rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5">
-                    + Tambah Tugas
+            <div class="mb-6 flex flex-col gap-4 rounded-3xl border border-indigo-100 bg-white/80 p-5 shadow-lg shadow-indigo-100/50 backdrop-blur dark:border-indigo-900 dark:bg-slate-900/80 dark:shadow-black/20 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <div>
+                    <p class="text-sm font-extrabold text-slate-800 dark:text-white">Ada rencana baru?</p>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tambahkan tugas supaya tidak tercecer.</p>
+                </div>
+                <button type="button" id="open-add-modal" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:bg-indigo-700 dark:shadow-indigo-950">
+                    ＋ Tambah Tugas
                 </button>
             </div>
             <div id="add-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
@@ -155,10 +161,10 @@
             </div>
 
             <!-- Drag & Drop Board -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
                 
                 <!-- Column: To Do -->
-                <div class="bg-slate-100 p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/60 dark:bg-slate-900/80 dark:border-slate-800 dark:shadow-black/20">
+                <div class="rounded-3xl border border-amber-100/80 bg-white/95 p-4 shadow-xl shadow-amber-100/40 backdrop-blur dark:border-amber-950 dark:bg-slate-900/95 dark:shadow-black/20 sm:p-6">
                     <div class="flex justify-between items-center mb-5">
                         <div class="flex items-center gap-2.5">
                             <span class="w-3.5 h-3.5 rounded-full bg-amber-500/80 shadow-sm shadow-amber-900/20 dark:bg-amber-700/70"></span>
@@ -170,9 +176,9 @@
                     </div>
 
                     <!-- Draggable List -->
-                    <div id="todo-list" class="max-h-[70vh] min-h-[260px] space-y-4 overflow-y-auto pr-2" data-status="0">
+                    <div id="todo-list" class="max-h-[70vh] min-h-[260px] space-y-3 overflow-y-auto pr-1 sm:pr-2" data-status="0">
                         <?php foreach ($todoItems->where('completed', false) as $todo) { ?>
-                            <div class="task-card cursor-grab rounded-2xl border border-slate-200 bg-slate-50/90 p-5 shadow-md shadow-slate-950/10 backdrop-blur-sm transition-all duration-200 hover:border-slate-300 hover:shadow-lg active:cursor-grabbing group dark:border-slate-600 dark:bg-slate-200 dark:shadow-black/20 dark:hover:border-slate-500" 
+                            <div class="task-card group cursor-grab rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm shadow-slate-950/10 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg active:cursor-grabbing dark:border-slate-700 dark:from-slate-800 dark:to-slate-900 dark:shadow-black/20 dark:hover:border-indigo-400" 
                                  data-id="{{ $todo->id }}">
                                 <div class="flex items-start justify-between gap-3 mb-2">
                                     <div class="flex flex-col gap-1">
@@ -220,7 +226,7 @@
                                         💡 {{ $todo->description }}
                                     </div>
                                 <?php } ?>
-                                <div class="mb-3 rounded-2xl border border-slate-300 bg-slate-100/70 p-4 dark:border-slate-300 dark:bg-slate-100">
+                                <div class="mb-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
                                     <div class="mb-3 flex items-center justify-between">
                                         <div class="flex items-center gap-2">
                                             <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300" aria-hidden="true"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
@@ -240,11 +246,11 @@
                                         <div class="h-full rounded-full bg-slate-500 transition-all dark:bg-slate-500" style="width: {{ $subtaskProgress }}%"></div>
                                     </div>
                                     <?php foreach ($todo->subtasks as $subtask) { ?>
-                                        <div class="mb-2 flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm shadow-sm dark:bg-white">
+                                        <div class="mb-2 flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">
                                             <form method="POST" action="{{ route('subtasks.update', $subtask) }}">@csrf @method('PATCH')
                                                 <button type="submit" class="inline-flex h-7 w-7 items-center justify-center rounded-lg border {{ $subtask->completed ? 'border-emerald-300 bg-emerald-100 text-emerald-700' : 'border-gray-300 bg-gray-50 text-gray-400' }}" title="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}" aria-label="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg></button>
                                             </form>
-                                            <span class="flex-1 text-base {{ $subtask->completed ? 'line-through text-gray-500' : 'font-medium text-slate-950' }}">
+                                            <span class="flex-1 text-sm {{ $subtask->completed ? 'line-through text-gray-500' : 'font-medium text-slate-950 dark:text-slate-100' }}">
                                                 {{ $subtask->title }}
                                                 @if($subtask->due_date)
                                                     <small class="ml-2 {{ !$subtask->completed && $subtask->due_date->isPast() && !$subtask->due_date->isToday() ? 'text-rose-600' : 'text-gray-400' }}">· {{ $subtask->due_date->format('d M Y') }}</small>
@@ -290,7 +296,7 @@
                 </div>
 
                 <!-- Column: Done -->
-                <div class="bg-slate-100 p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/60 dark:bg-gray-900 dark:border-gray-800">
+                <div class="rounded-3xl border border-emerald-100/80 bg-white/95 p-4 shadow-xl shadow-emerald-100/40 backdrop-blur dark:border-emerald-950 dark:bg-slate-900/95 dark:shadow-black/20 sm:p-6">
                     <div class="flex justify-between items-center mb-5">
                         <div class="flex items-center gap-2.5">
                             <span class="w-3.5 h-3.5 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full shadow-sm shadow-emerald-300"></span>
@@ -302,9 +308,9 @@
                     </div>
 
                     <!-- Draggable List -->
-                    <div id="done-list" class="max-h-[70vh] min-h-[260px] space-y-4 overflow-y-auto pr-2" data-status="1">
+                    <div id="done-list" class="max-h-[70vh] min-h-[260px] space-y-3 overflow-y-auto pr-1 sm:pr-2" data-status="1">
                         <?php foreach ($todoItems->where('completed', true) as $todo) { ?>
-                            <div class="task-card bg-white/70 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-emerald-100/60 hover:bg-white hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group opacity-90 hover:opacity-100" 
+                            <div class="task-card group cursor-grab rounded-2xl border border-emerald-100/80 bg-emerald-50/40 p-4 opacity-90 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:opacity-100 hover:shadow-md active:cursor-grabbing dark:border-emerald-900 dark:bg-emerald-950/20" 
                                  data-id="{{ $todo->id }}">
                                 <div class="flex items-start justify-between gap-3 mb-2">
                                     <div class="flex flex-col gap-1">
