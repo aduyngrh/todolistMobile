@@ -7,7 +7,15 @@
                     <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-xl dark:bg-indigo-950">✨</span>
                     My Task Board
                 </h2>
-                <p class="max-w-xl text-sm text-slate-500 dark:text-slate-400">Atur prioritas harian, pecah tugas menjadi langkah kecil, lalu selesaikan satu per satu.</p>
+                <p class="text-sm text-gray-500 mt-0.5">Tarik dan lepas (drag & drop) tugas antar kolom untuk mengubah status.</p>
+                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-300" aria-label="Daftar pintasan keyboard">
+                    <span class="font-bold text-gray-700 dark:text-gray-200">Pintasan keyboard:</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-100 px-2.5 py-1.5 font-semibold text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200"><kbd class="rounded bg-indigo-600 px-1.5 py-0.5 font-black text-white shadow-sm dark:bg-indigo-500">N</kbd> Buat tugas baru</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-sky-100 px-2.5 py-1.5 font-semibold text-sky-800 dark:bg-sky-900/60 dark:text-sky-200"><kbd class="rounded bg-sky-600 px-1.5 py-0.5 font-black text-white shadow-sm dark:bg-sky-500">/</kbd> Cari tugas</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 px-2.5 py-1.5 font-semibold text-amber-800 dark:bg-amber-900/60 dark:text-amber-200"><kbd class="rounded bg-amber-600 px-1.5 py-0.5 font-black text-white shadow-sm dark:bg-amber-500">E</kbd> Edit tugas terpilih</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-2.5 py-1.5 font-semibold text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200"><kbd class="rounded bg-emerald-600 px-1.5 py-0.5 font-black text-white shadow-sm dark:bg-emerald-500">D</kbd> Tandai tugas selesai</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-200 px-2.5 py-1.5 font-semibold text-gray-800 dark:bg-gray-800 dark:text-gray-200"><kbd class="rounded bg-gray-700 px-1.5 py-0.5 font-black text-white shadow-sm dark:bg-gray-600">Esc</kbd> Tutup dialog</span>
+                </div>
             </div>
             <div class="flex w-fit items-center gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-bold text-indigo-700 shadow-sm dark:border-indigo-900 dark:bg-indigo-950/50 dark:text-indigo-300">
                 <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-indigo-500"></span>
@@ -178,8 +186,8 @@
                     <!-- Draggable List -->
                     <div id="todo-list" class="max-h-[70vh] min-h-[260px] space-y-3 overflow-y-auto pr-1 sm:pr-2" data-status="0">
                         <?php foreach ($todoItems->where('completed', false) as $todo) { ?>
-                            <div class="task-card group cursor-grab rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm shadow-slate-950/10 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg active:cursor-grabbing dark:border-slate-700 dark:from-slate-800 dark:to-slate-900 dark:shadow-black/20 dark:hover:border-indigo-400" 
-                                 data-id="{{ $todo->id }}">
+                            <div class="task-card cursor-grab rounded-2xl border border-slate-200 bg-slate-50/90 p-5 shadow-md shadow-slate-950/10 backdrop-blur-sm transition-all duration-200 hover:border-slate-300 hover:shadow-lg active:cursor-grabbing group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-600 dark:bg-slate-200 dark:shadow-black/20 dark:hover:border-slate-500"
+                                 data-id="{{ $todo->id }}" tabindex="0" aria-keyshortcuts="E D">
                                 <div class="flex items-start justify-between gap-3 mb-2">
                                     <div class="flex flex-col gap-1">
                                         <span class="text-lg font-bold leading-snug text-gray-800 transition group-hover:text-slate-900 dark:text-slate-950 dark:group-hover:text-black">{{ $todo->title }}</span>
@@ -192,7 +200,7 @@
                                         <!-- Complete Icon -->
                                         <form method="POST" action="{{ route('todos.update', $todo) }}" class="inline">
                                             @csrf @method('PATCH')
-                                            <button type="submit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-600 hover:text-white hover:shadow-md dark:border-emerald-800 dark:bg-emerald-950/40" title="Tandai selesai" aria-label="Tandai selesai">
+                                            <button type="submit" class="complete-todo-button inline-flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-600 hover:text-white hover:shadow-md dark:border-emerald-800 dark:bg-emerald-950/40" title="Tandai selesai" aria-label="Tandai selesai">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                                 </svg>
@@ -200,7 +208,7 @@
                                         </form>
                                         <!-- Edit Icon -->
                                         <button type="button" class="edit-button p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg transition" title="Edit"
-                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}" data-start-time="{{ $todo->start_time }}" data-end-time="{{ $todo->end_time }}" data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}">
+                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}" data-priority="{{ $todo->priority }}" data-start-time="{{ $todo->start_time }}" data-end-time="{{ $todo->end_time }}" data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536-6 6H9v-3.536z" />
                                             </svg>
@@ -310,8 +318,8 @@
                     <!-- Draggable List -->
                     <div id="done-list" class="max-h-[70vh] min-h-[260px] space-y-3 overflow-y-auto pr-1 sm:pr-2" data-status="1">
                         <?php foreach ($todoItems->where('completed', true) as $todo) { ?>
-                            <div class="task-card group cursor-grab rounded-2xl border border-emerald-100/80 bg-emerald-50/40 p-4 opacity-90 shadow-sm backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:opacity-100 hover:shadow-md active:cursor-grabbing dark:border-emerald-900 dark:bg-emerald-950/20" 
-                                 data-id="{{ $todo->id }}">
+                            <div class="task-card bg-white/70 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-emerald-100/60 hover:bg-white hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group opacity-90 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                                 data-id="{{ $todo->id }}" tabindex="0" aria-keyshortcuts="E D">
                                 <div class="flex items-start justify-between gap-3 mb-2">
                                     <div class="flex flex-col gap-1">
                                         <span class="text-sm font-semibold text-gray-500 line-through leading-snug">{{ $todo->title }}</span>
@@ -335,7 +343,7 @@
                                         </form>
                                         <!-- Edit Icon -->
                                         <button type="button" class="edit-button p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg transition" title="Edit"
-                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}" data-start-time="{{ $todo->start_time }}" data-end-time="{{ $todo->end_time }}" data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}">
+                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}" data-priority="{{ $todo->priority }}" data-start-time="{{ $todo->start_time }}" data-end-time="{{ $todo->end_time }}" data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536-6 6H9v-3.536z" />
                                             </svg>
@@ -523,6 +531,67 @@
 
             setupSortable(document.getElementById('todo-list'), 0);
             setupSortable(document.getElementById('done-list'), 1);
+
+            document.querySelectorAll('.task-card').forEach((card) => {
+                card.addEventListener('click', (event) => {
+                    if (!event.target.closest('button, a, input, textarea, select, form, [contenteditable="true"]')) {
+                        card.focus();
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.altKey || event.ctrlKey || event.metaKey) {
+                    return;
+                }
+
+                const addModal = document.getElementById('add-modal');
+                const editModal = document.getElementById('edit-modal');
+                const deleteModal = document.getElementById('delete-modal');
+
+                if (event.key === 'Escape') {
+                    if (!addModal.classList.contains('hidden')) {
+                        closeAddModal();
+                    }
+                    if (!editModal.classList.contains('hidden')) {
+                        closeEditModal();
+                    }
+                    if (!deleteModal.classList.contains('hidden')) {
+                        document.getElementById('cancel-delete').click();
+                    }
+                    return;
+                }
+
+                const target = event.target;
+                if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select, [contenteditable="true"]'))) {
+                    return;
+                }
+
+                if (event.key.toLowerCase() === 'n') {
+                    event.preventDefault();
+                    document.getElementById('open-add-modal').click();
+                    return;
+                }
+
+                if (event.key === '/') {
+                    event.preventDefault();
+                    document.querySelector('input[type="search"][name="search"]')?.focus();
+                    return;
+                }
+
+                const focusedCard = document.activeElement.closest('.task-card');
+                if (!focusedCard) {
+                    return;
+                }
+
+                if (event.key.toLowerCase() === 'e') {
+                    event.preventDefault();
+                    focusedCard.querySelector('.edit-button')?.click();
+                } else if (event.key.toLowerCase() === 'd' && focusedCard.closest('#todo-list')) {
+                    event.preventDefault();
+                    focusedCard.querySelector('.complete-todo-button')?.click();
+                }
+            });
         });
     </script>
 </x-app-layout>
