@@ -37,8 +37,18 @@
             </div>
 
             <!-- User actions -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
+            <div class="hidden items-center gap-3 sm:flex sm:ms-6">
+                <span class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ Auth::user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-3.5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3-3H9m0 0l3-3m-3 3l3 3" /></svg>
+                        {{ __('Log Out') }}
+                    </button>
+                </form>
+                {{-- Desktop logout stays visible. --}}
+                <div class="hidden">
+                    <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
                             <span>{{ Auth::user()->name }}</span>
