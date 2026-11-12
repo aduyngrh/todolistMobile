@@ -14,6 +14,14 @@ class DashboardController extends Controller
             ->whereNull('archived_at')
             ->get();
 
+        $total = $todos->count();
+        $completed = $todos->where('completed', true)->count();
+        $pending = $total - $completed;
+        $progress = $total ? round(($completed / $total) * 100) : 0;
+        $overdue = $todos->filter(fn (Todo $todo): bool => ! $todo->completed && $todo->due_date?->isPast() && ! $todo->due_date->isToday())->count();
+        $highPriority = $todos->where('priority', 'High')->where('completed', false)->count();
+        $weekCompleted = $todos->filter(fn (Todo $todo): bool => $todo->completed && $todo->updated_at->isAfter(now()->startOfWeek()))->count();
+        $topCategory = $todos->groupBy('category')->sortByDesc(fn ($items) => $items->count())->keys()->first() ?? 'Belum ada';
         $today = now()->startOfDay();
         $weekEnd = now()->copy()->addDays(7)->endOfDay();
         $todayTodos = $todos->filter(fn (Todo $todo): bool => $todo->due_date?->isToday() ?? false);
@@ -30,6 +38,6 @@ class DashboardController extends Controller
             return [$date->format('D') => $todos->filter(fn (Todo $todo): bool => $todo->completed && $todo->updated_at->isSameDay($date))->count()];
         });
 
-        return view('dashboard', compact('todos', 'todayTodos', 'upcomingTodos', 'priorityTodos', 'weekProgress'));
+        return view('dashboard', compact('todos', 'total', 'completed', 'pending', 'progress', 'overdue', 'highPriority', 'weekCompleted', 'topCategory', 'todayTodos', 'upcomingTodos', 'priorityTodos', 'weekProgress'));
     }
 }
