@@ -3,26 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\Todo;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function __invoke(): View
     {
-        $userId = auth()->id();
-        $todos = Todo::where('user_id', $userId)
+        $todos = Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
-            ->get(['id', 'title', 'completed', 'priority', 'category', 'due_date', 'updated_at']);
+            ->get();
 
-        $total = $todos->count();
-        $completed = $todos->where('completed', true)->count();
-        $pending = $total - $completed;
-        $progress = $total === 0 ? 0 : (int) round($completed / $total * 100);
-        $overdue = $todos->filter(fn (Todo $todo): bool => ! $todo->completed && $todo->due_date?->isPast() && ! $todo->due_date->isToday())->count();
-        $highPriority = $todos->where('priority', 'High')->where('completed', false)->count();
-        $weekCompleted = $todos->filter(fn (Todo $todo): bool => $todo->completed && $todo->updated_at?->isAfter(now()->startOfWeek()))->count();
-        $today = $todos->filter(fn (Todo $todo): bool => $todo->due_date?->isToday() && ! $todo->completed)->sortBy('priority')->take(5);
+        $today = now()->startOfDay();
+        $weekEnd = now()->copy()->addDays(7)->endOfDay();
+        $todayTodos = $todos->filter(fn (Todo $todo): bool => $todo->due_date?->isToday() ?? false);
+        $upcomingTodos = $todos->filter(fn (Todo $todo): bool => ! $todo->completed && $todo->due_date?->between($today, $weekEnd) ?? false)
+            ->sortBy('due_date')
+            ->take(5);
+        $priorityTodos = $todos->where('completed', false)
+            ->where('priority', 'High')
+            ->sortBy('due_date')
+            ->take(5);
+        $weekProgress = collect(range(6, 0))->mapWithKeys(function (int $days) use ($todos): array {
+            $date = now()->subDays($days);
 
-        return view('dashboard', compact('total', 'completed', 'pending', 'progress', 'overdue', 'highPriority', 'weekCompleted', 'today'));
+            return [$date->format('D') => $todos->filter(fn (Todo $todo): bool => $todo->completed && $todo->updated_at->isSameDay($date))->count()];
+        });
+
+        return view('dashboard', compact('todos', 'todayTodos', 'upcomingTodos', 'priorityTodos', 'weekProgress'));
     }
 }
