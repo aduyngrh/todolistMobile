@@ -6,6 +6,14 @@
                     <span>✨</span> My Task Board
                 </h2>
                 <p class="text-sm text-gray-500 mt-0.5">Tarik dan lepas (drag & drop) tugas antar kolom untuk mengubah status.</p>
+                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-300" aria-label="Daftar pintasan keyboard">
+                    <span class="font-bold text-gray-700 dark:text-gray-200">Pintasan keyboard:</span>
+                    <span class="rounded-lg bg-indigo-100 px-2.5 py-1.5 font-semibold text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200"><kbd class="rounded bg-indigo-600 px-1.5 py-0.5 font-black text-white">N</kbd> Buat tugas baru</span>
+                    <span class="rounded-lg bg-sky-100 px-2.5 py-1.5 font-semibold text-sky-800 dark:bg-sky-900/60 dark:text-sky-200"><kbd class="rounded bg-sky-600 px-1.5 py-0.5 font-black text-white">/</kbd> Cari tugas</span>
+                    <span class="rounded-lg bg-amber-100 px-2.5 py-1.5 font-semibold text-amber-800 dark:bg-amber-900/60 dark:text-amber-200"><kbd class="rounded bg-amber-600 px-1.5 py-0.5 font-black text-white">E</kbd> Edit tugas terpilih</span>
+                    <span class="rounded-lg bg-emerald-100 px-2.5 py-1.5 font-semibold text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200"><kbd class="rounded bg-emerald-600 px-1.5 py-0.5 font-black text-white">D</kbd> Tandai selesai</span>
+                    <span class="rounded-lg bg-gray-200 px-2.5 py-1.5 font-semibold text-gray-800 dark:bg-gray-800 dark:text-gray-200"><kbd class="rounded bg-gray-700 px-1.5 py-0.5 font-black text-white">Esc</kbd> Tutup dialog</span>
+                </div>
             </div>
             <div class="flex items-center gap-2 bg-white border border-gray-200/80 rounded-xl px-3.5 py-1.5 shadow-sm text-xs font-semibold text-gray-600">
                 <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
@@ -108,7 +116,7 @@
                         <div><p class="text-xs font-bold uppercase tracking-widest text-indigo-600">Task board</p><h3 class="mt-1 text-2xl font-black text-gray-900 dark:text-white">Tambah tugas baru</h3></div>
                         <button type="button" id="close-add-modal" class="rounded-xl px-3 py-2 text-2xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Tutup">×</button>
                     </div>
-                <form method="POST" action="{{ route('todos.store') }}" class="flex flex-col gap-3">
+                <form id="add-todo" method="POST" action="{{ route('todos.store') }}" class="flex flex-col gap-3">
                     @csrf
                     <div class="flex-1 relative">
                         <label for="todo-title" class="sr-only">Judul tugas</label>
@@ -517,6 +525,43 @@
 
             setupSortable(document.getElementById('todo-list'), 0);
             setupSortable(document.getElementById('done-list'), 1);
+
+            document.addEventListener('keydown', (event) => {
+                if (event.altKey || event.ctrlKey || event.metaKey) return;
+
+                if (event.key === 'Escape') {
+                    closeAddModal();
+                    closeEditModal();
+                    document.getElementById('cancel-delete').click();
+                    return;
+                }
+
+                const target = event.target;
+                if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select, [contenteditable="true"]'))) return;
+
+                if (event.key.toLowerCase() === 'n') {
+                    event.preventDefault();
+                    document.getElementById('open-add-modal').click();
+                    return;
+                }
+
+                if (event.key === '/') {
+                    event.preventDefault();
+                    document.querySelector('input[type="search"][name="search"]')?.focus();
+                    return;
+                }
+
+                const focusedCard = document.activeElement?.closest('.task-card');
+                if (!focusedCard) return;
+
+                if (event.key.toLowerCase() === 'e') {
+                    event.preventDefault();
+                    focusedCard.querySelector('.edit-button')?.click();
+                } else if (event.key.toLowerCase() === 'd' && focusedCard.closest('#todo-list')) {
+                    event.preventDefault();
+                    focusedCard.querySelector('.complete-todo-button')?.click();
+                }
+            });
         });
     </script>
 </x-app-layout>
