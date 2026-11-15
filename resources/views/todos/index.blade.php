@@ -1,451 +1,835 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div class="space-y-2">
-                <p class="text-xs font-bold uppercase tracking-[0.24em] text-indigo-600 dark:text-indigo-400">Workspace pribadi</p>
-                <h2 class="flex items-center gap-3 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-xl dark:bg-indigo-950">✨</span>
-                    My Task Board
-                </h2>
-                <p class="text-sm text-gray-500 mt-0.5">Tarik dan lepas (drag & drop) tugas antar kolom untuk mengubah status.</p>
-                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-300" aria-label="Daftar pintasan keyboard">
-                    <span class="font-bold text-gray-700 dark:text-gray-200">Pintasan keyboard:</span>
-                    <span class="rounded-lg bg-indigo-100 px-2.5 py-1.5 font-semibold text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200"><kbd class="rounded bg-indigo-600 px-1.5 py-0.5 font-black text-white">N</kbd> Buat tugas baru</span>
-                    <span class="rounded-lg bg-sky-100 px-2.5 py-1.5 font-semibold text-sky-800 dark:bg-sky-900/60 dark:text-sky-200"><kbd class="rounded bg-sky-600 px-1.5 py-0.5 font-black text-white">/</kbd> Cari tugas</span>
-                    <span class="rounded-lg bg-amber-100 px-2.5 py-1.5 font-semibold text-amber-800 dark:bg-amber-900/60 dark:text-amber-200"><kbd class="rounded bg-amber-600 px-1.5 py-0.5 font-black text-white">E</kbd> Edit tugas terpilih</span>
-                    <span class="rounded-lg bg-emerald-100 px-2.5 py-1.5 font-semibold text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200"><kbd class="rounded bg-emerald-600 px-1.5 py-0.5 font-black text-white">D</kbd> Tandai selesai</span>
-                    <span class="rounded-lg bg-gray-200 px-2.5 py-1.5 font-semibold text-gray-800 dark:bg-gray-800 dark:text-gray-200"><kbd class="rounded bg-gray-700 px-1.5 py-0.5 font-black text-white">Esc</kbd> Tutup dialog</span>
-                </div>
-            </div>
-            <div class="flex w-fit items-center gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-bold text-indigo-700 shadow-sm dark:border-indigo-900 dark:bg-indigo-950/50 dark:text-indigo-300">
-                <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-indigo-500"></span>
-                <span>{{ $todos->count() }} tugas aktif</span>
-            </div>
-        </div>
-    </x-slot>
+    <style>
+        /* Kanban Custom Scrollbars */
+        .kanban-scrollbar::-webkit-scrollbar {
+            height: 10px;
+            width: 8px;
+        }
+        .kanban-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+        .dark .kanban-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .kanban-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        .dark .kanban-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .kanban-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.35);
+        }
+        .dark .kanban-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
 
-    <div class="min-h-screen bg-[radial-gradient(circle_at_top_right,_#eef2ff,_transparent_32%),#f8fafc] py-6 transition-colors dark:bg-[radial-gradient(circle_at_top_right,_#1e1b4b,_transparent_30%),#020617] sm:py-10">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <form method="GET" action="{{ route('todos.index') }}" class="mb-6 rounded-3xl border border-slate-200/80 bg-white/95 p-4 shadow-lg shadow-slate-200/40 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-black/20 sm:p-5">
-                <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
-                    <label class="md:col-span-2"><span class="sr-only">Cari tugas</span><input type="search" name="search" value="{{ request('search') }}" placeholder="Cari judul atau deskripsi..." class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-200"></label>
-                    <select name="status" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua status</option><option value="pending" @selected(request('status') === 'pending')>Belum selesai</option><option value="done" @selected(request('status') === 'done')>Selesai</option></select>
-                    <select name="priority" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua prioritas</option><option value="High" @selected(request('priority') === 'High')>High</option><option value="Medium" @selected(request('priority') === 'Medium')>Medium</option><option value="Low" @selected(request('priority') === 'Low')>Low</option></select>
-                    <select name="category" class="rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option value="">Semua kategori</option><option value="Work" @selected(request('category') === 'Work')>Work</option><option value="Personal" @selected(request('category') === 'Personal')>Personal</option><option value="Urgent" @selected(request('category') === 'Urgent')>Urgent</option></select>
-                    <div class="flex flex-wrap gap-2 md:col-span-3"><button type="submit" class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500">Cari / Filter</button><a href="{{ route('todos.index') }}" class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-600 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">Reset</a></div>
-                </div>
-            </form>
-            
-            <!-- Edit Modal -->
-            <div id="edit-modal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm bg-black/30">
-                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-100">
-                        <form id="edit-todo-form" method="POST">
-                            @csrf @method('PATCH')
-                            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4 text-white">
-                                <h3 class="text-lg font-bold">Edit Tugas ✨</h3>
-                            </div>
-                            <div class="bg-white px-6 pt-5 pb-4 sm:p-6 sm:pb-4 space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Judul Tugas</label>
-                                    <input type="text" id="edit-todo-title" name="title" required 
-                                           class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Catatan / Sub-tugas</label>
-                                    <textarea id="edit-todo-description" name="description" rows="3"
-                                              class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition"
-                                              placeholder="Tambahkan catatan atau sub-tugas..."></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Kategori</label>
-                                    <select id="edit-todo-category" name="category" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
-                                        <option value="Work">Work</option>
-                                        <option value="Personal">Personal</option>
-                                        <option value="Urgent">Urgent</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Tanggal Tenggat</label>
-                                    <input type="date" id="edit-todo-due-date" name="due_date" 
-                                           class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
-                                </div>
-                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    <div>
-                                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Mulai</label>
-                                        <input type="time" id="edit-todo-start-time" name="start_time" class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-200">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Selesai</label>
-                                        <input type="time" id="edit-todo-end-time" name="end_time" class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-200">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Pengingat</label>
-                                    <input type="datetime-local" id="edit-todo-reminder-at" name="reminder_at" class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-200">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Prioritas</label>
-                                    <select id="edit-todo-priority" name="priority" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
-                                        <option value="High">High</option>
-                                        <option value="Medium">Medium</option>
-                                        <option value="Low">Low</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse gap-2 border-t border-gray-100">
-                                <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-base font-semibold text-white shadow-md hover:from-indigo-700 hover:to-purple-700 sm:w-auto sm:text-sm transition">
-                                    Simpan
-                                </button>
-                                <button type="button" onclick="closeEditModal()" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-200 px-5 py-2.5 bg-white text-base font-semibold text-gray-700 shadow-sm hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm transition">
-                                    Batal
-                                </button>
-                            </div>
-                        </form>
+        .list-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .list-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .list-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 5px;
+        }
+        .dark .list-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+
+    <!-- Balanced Page Background (Consistent with other pages: slate neutral, not too dark, not too bright) -->
+    <div class="min-h-screen bg-slate-100 dark:bg-[#111827] text-slate-900 dark:text-slate-100 transition-colors duration-300 flex flex-col">
+
+        <!-- Board Top Bar -->
+        <header class="sticky top-16 z-30 border-b border-slate-200/90 dark:border-slate-800 bg-white/80 dark:bg-[#172033]/90 backdrop-blur-md px-4 py-3 sm:px-6 shadow-sm">
+            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                
+                <!-- Left: Title & Count -->
+                <div class="flex items-center gap-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 text-lg shadow-sm">📋</span>
+                    <div>
+                        <h1 class="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                            <span>My Task Board</span>
+                            <span class="rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-2 py-0.5 text-[11px] font-bold">
+                                {{ $todos->count() }} Tugas
+                            </span>
+                        </h1>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">Papan kategori tugas dengan drag & drop dan manajemen list.</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- Add Task Popup -->
-            <div class="mb-6 flex flex-col gap-4 rounded-3xl border border-indigo-100 bg-white/80 p-5 shadow-lg shadow-indigo-100/50 backdrop-blur dark:border-indigo-900 dark:bg-slate-900/80 dark:shadow-black/20 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            </div>
+        </header>
+
+        <!-- Main Kanban Board Container (Category Lists Only) -->
+        <main class="flex-1 p-4 sm:p-6 overflow-x-auto kanban-scrollbar">
+            <div id="board-columns-container" class="flex items-start gap-4 pb-4 select-none min-w-max">
+
+                <!-- Render Server-Side Categories -->
+                @foreach($categories as $categoryName)
+                    @php
+                        $categoryTodos = $todoItems->filter(fn($t) => strcasecmp($t->category, $categoryName) === 0);
+                    @endphp
+                    <div class="trello-column w-72 sm:w-80 flex-shrink-0 rounded-2xl p-3 shadow-md border border-slate-200 dark:border-slate-800/80 bg-slate-200/80 dark:bg-[#181f2c] flex flex-col max-h-[calc(100vh-170px)]"
+                         data-category="{{ $categoryName }}">
+                        
+                        <!-- Column Header -->
+                        <div class="flex items-center justify-between px-2 py-1.5 mb-2">
+                            <div class="flex items-center gap-2 truncate">
+                                <h2 class="column-name text-sm font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-100 truncate">
+                                    {{ $categoryName }}
+                                </h2>
+                            </div>
+                            <div class="flex items-center gap-1.5 flex-shrink-0">
+                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 bg-white/70 dark:bg-slate-800 px-2 py-0.5 rounded-md count-badge border border-slate-200/60 dark:border-slate-700">
+                                    {{ $categoryTodos->count() }}
+                                </span>
+                                
+                                <!-- Column Titik 3 Button (List Menu) -->
+                                <div class="relative inline-block text-left">
+                                    <button type="button" onclick="toggleColumnMenu(event, this)"
+                                            class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-300/60 dark:hover:bg-slate-700/60 rounded-lg p-1 transition" title="Menu list">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/></svg>
+                                    </button>
+                                    
+                                    <!-- Column Dropdown Menu -->
+                                    <div class="column-menu-dropdown hidden absolute right-0 z-40 mt-1 w-44 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-800 text-xs">
+                                        <button type="button" onclick="openRenameListModal('{{ addslashes($categoryName) }}')"
+                                                class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/70 transition">
+                                            <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            <span>Edit Nama List</span>
+                                        </button>
+                                        <button type="button" onclick="quickAddCard('{{ addslashes($categoryName) }}')"
+                                                class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/70 transition">
+                                            <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                            <span>Tambah Kartu</span>
+                                        </button>
+                                        <div class="my-1 border-t border-slate-100 dark:border-slate-700"></div>
+                                        <button type="button" onclick="confirmDeleteList('{{ addslashes($categoryName) }}')"
+                                                class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 transition">
+                                            <svg class="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            <span>Hapus List</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Draggable Cards List in Category -->
+                        <div class="sortable-list list-scrollbar flex-1 overflow-y-auto space-y-2.5 px-0.5 py-1 min-h-[60px]"
+                             data-column-type="category" data-column-val="{{ $categoryName }}">
+                            @foreach($categoryTodos as $todo)
+                                @include('todos.partials.trello-card', ['todo' => $todo])
+                            @endforeach
+                            <div class="empty-placeholder text-center py-8 text-xs text-slate-400 dark:text-slate-500 border border-dashed border-slate-300 dark:border-slate-700/60 rounded-xl {{ $categoryTodos->isEmpty() ? '' : 'hidden' }}">
+                                Belum ada kartu di list ini.
+                            </div>
+                        </div>
+
+                        <!-- Column Footer -->
+                        <div class="pt-2 mt-2 border-t border-slate-300/60 dark:border-slate-700/60 flex items-center justify-between">
+                            <button type="button" onclick="quickAddCard('{{ addslashes($categoryName) }}')"
+                                    class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50 px-3 py-1.5 rounded-xl transition flex-1 text-left">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                <span>Add a card</span>
+                            </button>
+                            <button type="button" onclick="quickAddCard('{{ addslashes($categoryName) }}')" 
+                                    class="text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50 p-1.5 rounded-xl transition" title="Tambah kartu">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                @endforeach
+
+                <!-- "+ Add another list" Column Button -->
+                <div id="add-list-container" class="w-72 sm:w-80 flex-shrink-0">
+                    <button type="button" id="btn-show-add-list"
+                            class="w-full flex items-center gap-2.5 rounded-2xl border border-slate-300/80 dark:border-slate-700/80 bg-slate-200/70 hover:bg-slate-200 dark:bg-[#181f2c]/70 dark:hover:bg-[#181f2c] p-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-sm transition">
+                        <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>Add another list</span>
+                    </button>
+
+                    <!-- Add List Form (Inline Hidden) -->
+                    <div id="form-add-list" class="hidden rounded-2xl p-3 shadow-md border border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-[#181f2c]">
+                        <input type="text" id="new-list-title" placeholder="Enter list title..." maxlength="60"
+                               class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#111827] px-3.5 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:ring-0">
+                        <div class="mt-2.5 flex items-center gap-2">
+                            <button type="button" id="btn-submit-add-list"
+                                    class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-xs font-bold text-white transition">
+                                Add list
+                            </button>
+                            <button type="button" id="btn-cancel-add-list"
+                                    class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Archived Tasks Bottom Drawer (Collapsible) -->
+        @if($archivedTodos->isNotEmpty())
+            <footer class="border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-[#131b2a]/90 backdrop-blur-md px-4 py-2 sm:px-6">
+                <details class="group">
+                    <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white transition">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                            <span>Daftar Arsip Tugas ({{ $archivedTodos->count() }})</span>
+                        </span>
+                        <span class="text-[10px] text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+                    <div class="pt-3 pb-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-48 overflow-y-auto">
+                        @foreach($archivedTodos as $archived)
+                            <div class="rounded-xl bg-white dark:bg-[#1a2230] border border-slate-200 dark:border-slate-700/60 p-3 flex items-center justify-between shadow-sm">
+                                <div class="truncate mr-2">
+                                    <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{{ $archived->title }}</p>
+                                    <p class="text-[10px] text-slate-400">Arsip: {{ $archived->archived_at->format('d M Y') }}</p>
+                                </div>
+                                <form method="POST" action="{{ route('todos.restore', $archived) }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white dark:bg-indigo-900/40 dark:text-indigo-300 px-2.5 py-1 text-[11px] font-bold transition">
+                                        Pulihkan
+                                    </button>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+                </details>
+            </footer>
+        @endif
+    </div>
+
+    {{-- ==================== MODALS ==================== --}}
+
+    <!-- Add Task Modal -->
+    <div id="add-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+        <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700/80 p-5 shadow-2xl sm:p-7 text-slate-800 dark:text-slate-100">
+            <div class="mb-5 flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-extrabold text-slate-800 dark:text-white">Ada rencana baru?</p>
-                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tambahkan tugas supaya tidak tercecer.</p>
+                    <p class="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Task Board</p>
+                    <h3 class="mt-1 text-2xl font-black text-slate-900 dark:text-white">Tambah Kartu Baru ✨</h3>
                 </div>
-                <button type="button" id="open-add-modal" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:bg-indigo-700 dark:shadow-indigo-950">
-                    ＋ Tambah Tugas
-                </button>
+                <button type="button" id="close-add-modal" class="rounded-xl px-3 py-2 text-2xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 transition" aria-label="Tutup">×</button>
             </div>
-            <div id="add-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-                <div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl dark:bg-gray-900 sm:p-7">
-                    <div class="mb-5 flex items-center justify-between">
-                        <div><p class="text-xs font-bold uppercase tracking-widest text-indigo-600">Task board</p><h3 class="mt-1 text-2xl font-black text-gray-900 dark:text-white">Tambah tugas baru</h3></div>
-                        <button type="button" id="close-add-modal" class="rounded-xl px-3 py-2 text-2xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Tutup">×</button>
+            <form id="add-todo" method="POST" action="{{ route('todos.store') }}" class="flex flex-col gap-4">
+                @csrf
+                <div class="relative">
+                    <label for="todo-title" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Judul Kartu *</label>
+                    <input id="todo-title" type="text" name="title" required autocomplete="off" maxlength="255"
+                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-3 text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 transition focus:border-indigo-500 focus:bg-white dark:focus:bg-[#111827] focus:ring-0" 
+                           placeholder="Contoh: Life Update Moon October...">
+                    <span id="title-count" class="absolute bottom-2.5 right-4 text-[10px] text-slate-400">0/255</span>
+                </div>
+
+                <div class="relative">
+                    <label for="todo-description" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Deskripsi / Catatan Tambahan</label>
+                    <textarea id="todo-description" name="description" rows="3" maxlength="1000"
+                              class="w-full resize-y rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-3 text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 transition focus:border-indigo-500 focus:bg-white dark:focus:bg-[#111827] focus:ring-0"
+                              placeholder="Tulis deskripsi atau catatan kartu di sini..."></textarea>
+                    <span id="description-count" class="absolute bottom-2.5 right-4 text-[10px] text-slate-400">0/1000</span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">List / Kategori *</label>
+                        <input type="text" name="category" id="add-modal-category" list="category-options" value="{{ $categories[0] ?? '' }}" required placeholder="Nama list / kategori..."
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                        <datalist id="category-options">
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat }}">
+                            @endforeach
+                            <option value="Work">
+                            <option value="Personal">
+                            <option value="Urgent">
+                        </datalist>
                     </div>
-                <form id="add-todo" method="POST" action="{{ route('todos.store') }}" class="flex flex-col gap-3">
-                    @csrf
-                    <div class="flex-1 relative">
-                        <label for="todo-title" class="sr-only">Judul tugas</label>
-                        <input id="todo-title" type="text" name="title" required autocomplete="off" maxlength="255"
-                               class="w-full rounded-2xl border border-indigo-100 bg-indigo-50/50 px-5 py-3.5 text-sm font-medium text-gray-800 placeholder-indigo-400 transition-all focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200" 
-                               placeholder="✨ Tambahkan rencana atau tugas baru...">
-                        <span id="title-count" class="absolute bottom-1.5 right-4 text-[10px] text-gray-400">0/255</span>
-                    </div>
-                    <div class="flex-1 relative">
-                        <label for="todo-description" class="sr-only">Catatan tambahan</label>
-                        <textarea id="todo-description" name="description" rows="1" maxlength="1000"
-                                  class="min-h-[52px] w-full resize-y rounded-2xl border border-purple-100 bg-purple-50/50 px-5 py-3.5 text-sm font-medium text-gray-800 placeholder-purple-400 transition-all focus:border-purple-500 focus:bg-white focus:ring-2 focus:ring-purple-200"
-                                  placeholder="📝 Catatan tambahan / sub-tugas..."></textarea>
-                        <span id="description-count" class="absolute bottom-1.5 right-4 text-[10px] text-gray-400">0/1000</span>
-                    </div>
-                    <div class="flex-1 relative">
-                        <select name="category" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-2.5 text-sm text-gray-800 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
-                            <option value="Work">Work</option>
-                            <option value="Personal" selected>Personal</option>
-                            <option value="Urgent">Urgent</option>
-                        </select>
-                    </div>
-                    <div class="flex-1 relative">
-                        <input type="date" name="due_date" 
-                               class="w-full bg-pink-50/50 border border-pink-100 rounded-2xl px-5 py-3.5 text-sm text-gray-800 focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all font-medium">
-                    </div>
-                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <input type="time" name="start_time" aria-label="Waktu mulai" class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-indigo-500 focus:ring-indigo-200">
-                        <input type="time" name="end_time" aria-label="Waktu selesai" class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-indigo-500 focus:ring-indigo-200">
-                    </div>
-                    <input type="datetime-local" name="reminder_at" aria-label="Waktu pengingat" class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-indigo-500 focus:ring-indigo-200">
-                    <div class="flex-1 relative">
-                        <select name="priority" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-3 py-2.5 text-sm text-gray-800 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Prioritas</label>
+                        <select name="priority" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
                             <option value="High">High Priority</option>
                             <option value="Medium" selected>Medium Priority</option>
                             <option value="Low">Low Priority</option>
                         </select>
                     </div>
-                    <button type="submit" class="mt-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5">
-                        Simpan Tugas
+                </div>
+
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tanggal Tenggat</label>
+                        <input type="date" name="due_date"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Jam Mulai</label>
+                        <input type="time" name="start_time" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Jam Selesai</label>
+                        <input type="time" name="end_time" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                    </div>
+                </div>
+
+                <div class="mt-3 flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <button type="button" onclick="closeAddModal()" class="rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                        Batal
                     </button>
+                    <button type="submit" class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 text-sm font-bold text-white shadow-md transition">
+                        Simpan Kartu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="edit-modal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm bg-black/50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700/80 rounded-3xl text-left overflow-hidden shadow-2xl max-w-xl w-full text-slate-800 dark:text-white">
+                <form id="edit-todo-form" method="POST">
+                    @csrf @method('PATCH')
+                    <div class="bg-indigo-600 px-6 py-4 flex items-center justify-between text-white">
+                        <h3 class="text-lg font-bold">Edit Kartu Tugas ✨</h3>
+                        <button type="button" onclick="closeEditModal()" class="text-white/80 hover:text-white text-2xl font-bold">×</button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Judul Kartu</label>
+                            <input type="text" id="edit-todo-title" name="title" required 
+                                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Catatan / Deskripsi</label>
+                            <textarea id="edit-todo-description" name="description" rows="3"
+                                      class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0"
+                                      placeholder="Tambahkan catatan atau deskripsi..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">List / Kategori</label>
+                                <input type="text" id="edit-todo-category" name="category" list="category-options"
+                                       class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Prioritas</label>
+                                <select id="edit-todo-priority" name="priority" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tenggat</label>
+                                <input type="date" id="edit-todo-due-date" name="due_date" 
+                                       class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Mulai</label>
+                                <input type="time" id="edit-todo-start-time" name="start_time" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Selesai</label>
+                                <input type="time" id="edit-todo-end-time" name="end_time" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 py-4 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#131b28]">
+                        <button type="button" onclick="closeEditModal()" class="rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            Batal
+                        </button>
+                        <button type="submit" class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 text-sm font-bold text-white transition">
+                            Simpan Perubahan
+                        </button>
+                    </div>
                 </form>
-                </div>
-            </div>
-
-            <!-- Drag & Drop Board -->
-            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-                
-                <!-- Column: To Do -->
-                <div class="rounded-3xl border border-amber-100/80 bg-white/95 p-4 shadow-xl shadow-amber-100/40 backdrop-blur dark:border-amber-950 dark:bg-slate-900/95 dark:shadow-black/20 sm:p-6">
-                    <div class="flex justify-between items-center mb-5">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3.5 h-3.5 rounded-full bg-amber-500/80 shadow-sm shadow-amber-900/20 dark:bg-amber-700/70"></span>
-                            <h3 class="font-extrabold text-amber-900 text-lg tracking-wide uppercase dark:text-amber-200">To Do / Pending</h3>
-                        </div>
-                        <span id="count-todo" class="rounded-full border border-amber-200 bg-white px-3 py-1 text-xs font-black text-amber-800 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-amber-200">
-                            {{ $todoItems->where('completed', false)->count() }}
-                        </span>
-                    </div>
-
-                    <!-- Draggable List -->
-                    <div id="todo-list" class="max-h-[70vh] min-h-[260px] space-y-3 overflow-y-auto pr-1 sm:pr-2" data-status="0">
-                        <?php foreach ($todoItems->where('completed', false) as $todo) { ?>
-                            <div class="task-card cursor-grab rounded-2xl border border-slate-200 bg-slate-50/90 p-5 shadow-md shadow-slate-950/10 backdrop-blur-sm transition-all duration-200 hover:border-slate-300 hover:shadow-lg active:cursor-grabbing group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-600 dark:bg-slate-200 dark:shadow-black/20 dark:hover:border-slate-500"
-                                 data-id="{{ $todo->id }}" tabindex="0" aria-keyshortcuts="E D">
-                                <div class="flex items-start justify-between gap-3 mb-2">
-                                    <div class="flex flex-col gap-1">
-                                        <span class="text-lg font-bold leading-snug text-gray-800 transition group-hover:text-slate-900 dark:text-slate-950 dark:group-hover:text-black">{{ $todo->title }}</span>
-                                        <div class="flex gap-1 flex-wrap">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider {{ $todo->category === 'Urgent' ? 'bg-rose-100 text-rose-700' : ($todo->category === 'Work' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700') }}">{{ $todo->category }}</span>
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $todo->priority === 'High' ? 'bg-red-100 text-red-700' : ($todo->priority === 'Low' ? 'bg-gray-100 text-gray-600' : 'bg-yellow-100 text-yellow-700') }}">{{ $todo->priority }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-1.5 opacity-100 transition-opacity">
-                                        <!-- Complete Icon -->
-                                        <form method="POST" action="{{ route('todos.update', $todo) }}" class="inline">
-                                            @csrf @method('PATCH')
-                                            <button type="submit" class="complete-todo-button inline-flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-600 hover:text-white hover:shadow-md dark:border-emerald-800 dark:bg-emerald-950/40" title="Tandai selesai" aria-label="Tandai selesai">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                        <!-- Edit Icon -->
-                                        <button type="button" class="edit-button p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg transition" title="Edit"
-                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}" data-priority="{{ $todo->priority }}" data-start-time="{{ $todo->start_time }}" data-end-time="{{ $todo->end_time }}" data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536-6 6H9v-3.536z" />
-                                            </svg>
-                                        </button>
-                                        <!-- Delete Icon -->
-                                        <form method="POST" action="{{ route('todos.destroy', $todo) }}" class="inline delete-todo-form">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg transition" title="Hapus">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                        <!-- Archive Icon -->
-                                        <form method="POST" action="{{ route('todos.archive', $todo) }}" class="inline">
-                                            @csrf @method('PATCH')
-                                            <button type="submit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-600 hover:text-white rounded-lg transition" title="Arsipkan tugas" aria-label="Arsipkan tugas"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M6 7l1 12h10l1-12M9 7V5h6v2"/></svg></button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <?php if ($todo->description) { ?>
-                                    <div class="mb-3 rounded-xl border border-slate-200 bg-slate-100/80 p-3 text-xs font-medium text-slate-700 whitespace-pre-line dark:border-slate-300 dark:bg-slate-100 dark:text-slate-950">
-                                        💡 {{ $todo->description }}
-                                    </div>
-                                <?php } ?>
-                                <div class="mb-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-                                    <div class="mb-3 flex items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300" aria-hidden="true"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></span>
-                                            <div>
-                                                <p class="text-xs font-extrabold uppercase tracking-wide text-slate-600 dark:text-slate-950">Langkah tugas</p>
-                                                <p class="text-[11px] text-gray-500 dark:text-slate-700">Pecah tugas ini menjadi langkah kecil</p>
-                                            </div>
-                                        </div>
-                                        @php
-                                            $subtaskTotal = $todo->subtasks->count();
-                                            $subtaskDone = $todo->subtasks->where('completed', true)->count();
-                                            $subtaskProgress = $subtaskTotal ? (int) round(($subtaskDone / $subtaskTotal) * 100) : 0;
-                                        @endphp
-                                        <span class="rounded-full bg-white px-2.5 py-1 text-xs font-extrabold text-slate-600 shadow-sm dark:bg-white dark:text-slate-950">{{ $subtaskDone }}/{{ $subtaskTotal }}</span>
-                                    </div>
-                                    <div class="mb-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800" title="Progress subtask {{ $subtaskProgress }}%">
-                                        <div class="h-full rounded-full bg-slate-500 transition-all dark:bg-slate-500" style="width: {{ $subtaskProgress }}%"></div>
-                                    </div>
-                                    <?php foreach ($todo->subtasks as $subtask) { ?>
-                                        <div class="mb-2 flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                                            <form method="POST" action="{{ route('subtasks.update', $subtask) }}">@csrf @method('PATCH')
-                                                <button type="submit" class="inline-flex h-7 w-7 items-center justify-center rounded-lg border {{ $subtask->completed ? 'border-emerald-300 bg-emerald-100 text-emerald-700' : 'border-gray-300 bg-gray-50 text-gray-400' }}" title="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}" aria-label="{{ $subtask->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg></button>
-                                            </form>
-                                            <span class="flex-1 text-sm {{ $subtask->completed ? 'line-through text-gray-500' : 'font-medium text-slate-950 dark:text-slate-100' }}">
-                                                {{ $subtask->title }}
-                                                @if($subtask->due_date)
-                                                    <small class="ml-2 {{ !$subtask->completed && $subtask->due_date->isPast() && !$subtask->due_date->isToday() ? 'text-rose-600' : 'text-gray-400' }}">· {{ $subtask->due_date->format('d M Y') }}</small>
-                                                @endif
-                                            </span>
-                                            <form method="POST" action="{{ route('subtasks.destroy', $subtask) }}">@csrf @method('DELETE')
-                                                <button type="submit" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-rose-100 hover:text-rose-600" title="Hapus subtask" aria-label="Hapus subtask"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/></svg></button>
-                                            </form>
-                                        </div>
-                                    <?php } ?>
-                                    <?php if ($todo->subtasks->isEmpty()) { ?>
-                                        <p class="rounded-xl border border-dashed border-indigo-200 px-3 py-2 text-xs text-gray-500">Belum ada langkah. Tambahkan langkah pertama di bawah.</p>
-                                    <?php } ?>
-                                    <form method="POST" action="{{ route('subtasks.store', $todo) }}" class="mt-3 flex gap-2">@csrf
-                                        <label for="subtask-{{ $todo->id }}" class="sr-only">Nama langkah tugas</label>
-                                        <input id="subtask-{{ $todo->id }}" name="title" required maxlength="255" placeholder="Contoh: Kumpulkan bahan..." class="min-w-0 flex-1 rounded-xl border-gray-200 px-3 py-2 text-xs focus:border-indigo-500 focus:ring-indigo-200" title="Tulis langkah kecil untuk tugas ini">
-                                        <label class="sr-only" for="subtask-due-{{ $todo->id }}">Tenggat langkah</label>
-                                        <input id="subtask-due-{{ $todo->id }}" name="due_date" type="date" class="w-32 rounded-xl border-gray-200 px-2 py-2 text-xs focus:border-indigo-500 focus:ring-indigo-200" title="Tenggat langkah">
-                                        <button type="submit" class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white hover:bg-indigo-700" title="Tambah langkah" aria-label="Tambah langkah"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg> Tambah</button>
-                                    </form>
-                                </div>
-                                <x-comment-thread :todo="$todo" />
-                                <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400 font-semibold">
-                                    <span>📅 {{ $todo->created_at->format('d M Y') }}</span>
-                                    <?php if ($todo->due_date) { ?>
-                                        @php
-                                            $isOverdue = !$todo->completed && $todo->due_date->isPast() && !$todo->due_date->isToday();
-                                            $isSoon = !$todo->completed && $todo->due_date->isToday() || (!$todo->completed && $todo->due_date->isFuture() && $todo->due_date->diffInDays(now()) <= 1);
-                                        @endphp
-                                        <span class="px-2 py-0.5 rounded font-bold {{ $isOverdue ? 'bg-rose-100 text-rose-700 animate-pulse' : ($isSoon ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600') }}">
-                                            ⏰ {{ $todo->due_date->format('d M Y') }}
-                                        </span>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        <?php } ?>
-                        <?php if ($todoItems->where('completed', false)->isEmpty()) { ?>
-                            <div class="empty-state text-center py-12 border-2 border-dashed border-amber-300/60 rounded-2xl text-amber-700/60 text-xs font-semibold bg-amber-50/30">
-                                📌 Belum ada tugas. Yuk buat baru!
-                            </div>
-                        <?php } ?>
-                    </div>
-                </div>
-
-                <!-- Column: Done -->
-                <div class="rounded-3xl border border-emerald-100/80 bg-white/95 p-4 shadow-xl shadow-emerald-100/40 backdrop-blur dark:border-emerald-950 dark:bg-slate-900/95 dark:shadow-black/20 sm:p-6">
-                    <div class="flex justify-between items-center mb-5">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3.5 h-3.5 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full shadow-sm shadow-emerald-300"></span>
-                            <h3 class="font-extrabold text-emerald-900 text-sm tracking-wider uppercase">Done / Selesai</h3>
-                        </div>
-                        <span id="count-done" class="bg-white border border-emerald-200 text-emerald-800 font-black text-xs px-3 py-1 rounded-full shadow-sm">
-                            {{ $todoItems->where('completed', true)->count() }}
-                        </span>
-                    </div>
-
-                    <!-- Draggable List -->
-                    <div id="done-list" class="max-h-[70vh] min-h-[260px] space-y-3 overflow-y-auto pr-1 sm:pr-2" data-status="1">
-                        <?php foreach ($todoItems->where('completed', true) as $todo) { ?>
-                            <div class="task-card bg-white/70 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-emerald-100/60 hover:bg-white hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group opacity-90 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                                 data-id="{{ $todo->id }}" tabindex="0" aria-keyshortcuts="E D">
-                                <div class="flex items-start justify-between gap-3 mb-2">
-                                    <div class="flex flex-col gap-1">
-                                        <span class="text-sm font-semibold text-gray-500 line-through leading-snug">{{ $todo->title }}</span>
-                                        @if($todo->description)
-                                            <p class="text-xs text-gray-500 whitespace-pre-line">{{ $todo->description }}</p>
-                                        @endif
-                                        <div class="flex gap-1">
-                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">{{ $todo->category }}</span>
-                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">{{ $todo->priority }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-1.5 opacity-100 transition-opacity">
-                                        <!-- Undo Icon -->
-                                        <form method="POST" action="{{ route('todos.update', $todo) }}" class="inline">
-                                            @csrf @method('PATCH')
-                                            <button type="submit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-amber-500 hover:text-white hover:shadow-md dark:border-amber-800 dark:bg-amber-950/40" title="Batalkan selesai" aria-label="Batalkan selesai">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                        <!-- Edit Icon -->
-                                        <button type="button" class="edit-button p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg transition" title="Edit"
-                                                data-id="{{ $todo->id }}" data-title="{{ $todo->title }}" data-description="{{ $todo->description }}" data-category="{{ $todo->category }}" data-due-date="{{ $todo->due_date?->format('Y-m-d') }}" data-priority="{{ $todo->priority }}" data-start-time="{{ $todo->start_time }}" data-end-time="{{ $todo->end_time }}" data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536-6 6H9v-3.536z" />
-                                            </svg>
-                                        </button>
-                                        <!-- Delete Icon -->
-                                        <form method="POST" action="{{ route('todos.destroy', $todo) }}" class="inline delete-todo-form">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg transition" title="Hapus">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                                @if($todo->description)
-                                    <div class="text-xs text-gray-500 bg-gray-50/70 p-3 rounded-xl border border-gray-100 mb-3 whitespace-pre-line line-through">
-                                        💡 {{ $todo->description }}
-                                    </div>
-                                @endif
-                                <x-comment-thread :todo="$todo" />
-                                <div class="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400 font-semibold">
-                                    <span>📅 {{ $todo->created_at->format('d M Y') }}</span>
-                                    <span class="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-md font-bold">✓ Selesai</span>
-                                </div>
-                            </div>
-                        <?php } ?>
-                        <?php if ($todoItems->where('completed', true)->isEmpty()) { ?>
-                            <div class="empty-state text-center py-12 border-2 border-dashed border-emerald-300/60 rounded-2xl text-emerald-700/60 text-xs font-semibold bg-emerald-50/30">
-                                🎉 Belum ada tugas selesai.
-                            </div>
-                        <?php } ?>
-                    </div>
-                </div>
-
-                <!-- Archived -->
-                @if($archivedTodos->isNotEmpty())
-                    <div class="mt-6 rounded-3xl border border-slate-200 bg-slate-100 p-6 shadow-xl dark:border-slate-700 dark:bg-gray-800">
-                        <div class="mb-5 flex items-center justify-between">
-                            <h3 class="font-extrabold text-slate-800 dark:text-white">Arsip</h3>
-                            <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">{{ $archivedTodos->count() }}</span>
-                        </div>
-                        <div class="space-y-3">
-                            <?php foreach ($archivedTodos as $todo): ?>
-                                <div class="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-900">
-                                    <div>
-                                        <p class="font-semibold text-gray-800 dark:text-gray-100">{{ $todo->title }}</p>
-                                        <p class="text-xs text-gray-500">Diarsipkan {{ $todo->archived_at->format('d M Y H:i') }}</p>
-                                    </div>
-                                    <form method="POST" action="{{ route('todos.restore', $todo) }}">
-                                        @csrf @method('PATCH')
-                                        <button type="submit" class="rounded-xl bg-indigo-100 px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-600 hover:text-white">Pulihkan</button>
-                                    </form>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            @if($todos->hasPages())
-                <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    {{ $todos->links() }}
-                </div>
-            @endif
-        </div>
-    </div>
-
-    <!-- Custom Delete Confirmation Dialog -->
-    <div id="delete-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-        <div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Pindahkan tugas ke sampah?</h3>
-            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tugas bisa dipulihkan nanti dari database.</p>
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" id="cancel-delete" class="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-200">Batalkan</button>
-                <button type="button" id="confirm-delete" class="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700">Hapus tugas</button>
             </div>
         </div>
     </div>
 
-    <!-- Script Drag & Drop Auto Update Status -->
+    <!-- Rename List Modal -->
+    <div id="rename-list-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+        <div class="w-full max-w-sm rounded-2xl bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700 p-6 shadow-2xl text-slate-800 dark:text-white">
+            <h3 class="text-base font-bold mb-3">Edit Nama List</h3>
+            <input type="hidden" id="rename-list-old-name">
+            <input type="text" id="rename-list-new-name" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-3.5 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0" placeholder="Nama list baru...">
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="button" onclick="closeRenameListModal()" class="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300">Batal</button>
+                <button type="button" onclick="submitRenameList()" class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-xs font-bold text-white">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Rename Card Modal -->
+    <div id="rename-card-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+        <div class="w-full max-w-sm rounded-2xl bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700 p-6 shadow-2xl text-slate-800 dark:text-white">
+            <h3 class="text-base font-bold mb-3">Edit Nama Kartu</h3>
+            <input type="hidden" id="rename-card-id">
+            <input type="text" id="rename-card-title" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-3.5 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0" placeholder="Judul kartu...">
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('rename-card-modal').classList.add('hidden')" class="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300">Batal</button>
+                <button type="button" onclick="submitRenameCard()" class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-xs font-bold text-white">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Global Forms for Card Operations -->
+    <form id="global-delete-card-form" method="POST" class="hidden">@csrf @method('DELETE')</form>
+    <form id="global-toggle-complete-form" method="POST" class="hidden">@csrf @method('PATCH')</form>
+    <form id="global-archive-card-form" method="POST" class="hidden">@csrf @method('PATCH')</form>
+
+    <!-- Card Options Modal (Popup Card when clicking titik 3 on card) -->
+    <div id="card-options-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-opacity duration-200">
+        <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700/80 p-6 shadow-2xl text-slate-800 dark:text-white transform transition-all">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+                <div class="truncate mr-2">
+                    <span id="card-options-category" class="rounded bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"></span>
+                    <h3 id="card-options-title" class="text-sm font-bold truncate mt-1 text-slate-900 dark:text-white"></h3>
+                </div>
+                <button type="button" onclick="closeCardOptionsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl p-1">×</button>
+            </div>
+
+            <div class="space-y-1.5 text-xs font-semibold">
+                <button type="button" onclick="triggerEditFromOptionsModal()"
+                        class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60 transition">
+                    <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 3.536 3.536-6 6H9v-3.536z" /></svg>
+                    <span>Edit Lengkap Kartu</span>
+                </button>
+
+                <button type="button" onclick="triggerRenameFromOptionsModal()"
+                        class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60 transition">
+                    <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span>Ganti Judul Kartu</span>
+                </button>
+
+                <button type="button" onclick="triggerToggleCompleteFromOptionsModal()"
+                        class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60 transition">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    <span>Tandai Selesai / Belum Selesai</span>
+                </button>
+
+                <button type="button" onclick="triggerArchiveFromOptionsModal()"
+                        class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60 transition">
+                    <svg class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                    <span>Arsipkan Kartu</span>
+                </button>
+
+                <div class="my-1 border-t border-slate-100 dark:border-slate-700"></div>
+
+                <button type="button" onclick="triggerDeleteFromOptionsModal()"
+                        class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 transition">
+                    <svg class="w-4 h-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    <span>Hapus Kartu (Pindahkan ke Sampah)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Delete Card Confirmation Dialog (Popup Card) -->
+    <div id="delete-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-opacity duration-200">
+        <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700/80 p-6 shadow-2xl text-center transform transition-all scale-100">
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 shadow-inner">
+                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </div>
+            <input type="hidden" id="delete-card-target-id">
+            <h3 class="text-lg font-black text-slate-900 dark:text-white">Pindahkan ke Sampah?</h3>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Kartu <span id="delete-card-target-title" class="font-bold text-slate-800 dark:text-slate-200"></span> akan dipindahkan ke folder sampah.
+            </p>
+            <div class="mt-6 flex items-center justify-center gap-3">
+                <button type="button" onclick="closeDeleteCardModal()" class="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    Batalkan
+                </button>
+                <button type="button" onclick="executeDeleteCard()" class="flex-1 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-rose-600/30 transition">
+                    Ya, Hapus Kartu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Delete List Confirmation Dialog (Popup Card) -->
+    <div id="delete-list-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-opacity duration-200">
+        <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700/80 p-6 shadow-2xl text-center transform transition-all scale-100">
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 shadow-inner">
+                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <input type="hidden" id="delete-list-target-input">
+            <h3 class="text-lg font-black text-slate-900 dark:text-white">Hapus List Ini?</h3>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                List <span id="delete-list-target-text" class="font-bold text-slate-800 dark:text-slate-200"></span> dan seluruh kartu di dalamnya akan dihapus.
+            </p>
+            <div class="mt-6 flex items-center justify-center gap-3">
+                <button type="button" onclick="closeDeleteListModal()" class="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    Batalkan
+                </button>
+                <button type="button" onclick="executeDeleteList()" class="flex-1 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-rose-600/30 transition">
+                    Ya, Hapus List
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcuts-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-2xl bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700 p-6 shadow-2xl text-slate-800 dark:text-white">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+                <h3 class="text-base font-bold flex items-center gap-2">
+                    <span>⌨️ Pintasan Keyboard</span>
+                </h3>
+                <button type="button" onclick="document.getElementById('shortcuts-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl">×</button>
+            </div>
+            <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
+                    <span class="text-slate-600 dark:text-slate-300">Buat tugas baru</span>
+                    <kbd class="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 font-mono font-bold">N</kbd>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
+                    <span class="text-slate-600 dark:text-slate-300">Cari tugas</span>
+                    <kbd class="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 font-mono font-bold">/</kbd>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
+                    <span class="text-slate-600 dark:text-slate-300">Edit kartu terpilih</span>
+                    <kbd class="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 font-mono font-bold">E</kbd>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
+                    <span class="text-slate-600 dark:text-slate-300">Tandai selesai / belum selesai</span>
+                    <kbd class="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 font-mono font-bold">D</kbd>
+                </div>
+                <div class="flex items-center justify-between py-1.5">
+                    <span class="text-slate-600 dark:text-slate-300">Tutup modal dialog</span>
+                    <kbd class="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 font-mono font-bold">Esc</kbd>
+                </div>
+            </div>
+            <div class="mt-5 text-right">
+                <button type="button" onclick="document.getElementById('shortcuts-modal').classList.add('hidden')" class="rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-4 py-2 text-xs font-semibold transition">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts: Drag & Drop, Dropdowns, Add List, and Card Operations -->
     <script>
+        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const STORAGE_KEY = 'trello_user_lists_clean';
+
+        // Clear old test lists from localStorage
+        if (localStorage.getItem('trello_user_custom_lists')) {
+            localStorage.removeItem('trello_user_custom_lists');
+        }
+
+        function getSavedLists() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveLists(lists) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(lists));
+        }
+
+        let currentActiveCard = null;
+
+        // Card Options Modal (titik 3 on card)
+        function openCardOptionsModal(btn) {
+            const card = btn.closest('.trello-card');
+            if (!card) return;
+            currentActiveCard = card;
+
+            document.getElementById('card-options-title').textContent = card.dataset.title;
+            document.getElementById('card-options-category').textContent = card.dataset.category;
+
+            const modal = document.getElementById('card-options-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCardOptionsModal() {
+            const modal = document.getElementById('card-options-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Direct Card Edit (Pencil button or from modal)
+        function handleCardEditClick(btn) {
+            const card = btn.closest('.trello-card');
+            if (!card) return;
+            openEditModal(
+                card.dataset.id,
+                card.dataset.title,
+                card.dataset.description,
+                card.dataset.category,
+                card.dataset.dueDate,
+                card.dataset.priority,
+                card.dataset.startTime,
+                card.dataset.endTime,
+                card.dataset.reminderAt
+            );
+        }
+
+        function triggerEditFromOptionsModal() {
+            closeCardOptionsModal();
+            if (currentActiveCard) {
+                openEditModal(
+                    currentActiveCard.dataset.id,
+                    currentActiveCard.dataset.title,
+                    currentActiveCard.dataset.description,
+                    currentActiveCard.dataset.category,
+                    currentActiveCard.dataset.dueDate,
+                    currentActiveCard.dataset.priority,
+                    currentActiveCard.dataset.startTime,
+                    currentActiveCard.dataset.endTime,
+                    currentActiveCard.dataset.reminderAt
+                );
+            }
+        }
+
+        // Direct Card Delete (Trash button or from modal)
+        function handleCardDeleteClick(btn) {
+            const card = btn.closest('.trello-card');
+            if (!card) return;
+            openDeleteCardModal(card.dataset.id, card.dataset.title);
+        }
+
+        function triggerDeleteFromOptionsModal() {
+            closeCardOptionsModal();
+            if (currentActiveCard) {
+                openDeleteCardModal(currentActiveCard.dataset.id, currentActiveCard.dataset.title);
+            }
+        }
+
+        function openDeleteCardModal(cardId, cardTitle) {
+            document.getElementById('delete-card-target-id').value = cardId;
+            document.getElementById('delete-card-target-title').textContent = `"${cardTitle}"`;
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeleteCardModal() {
+            const modal = document.getElementById('delete-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function executeDeleteCard() {
+            const cardId = document.getElementById('delete-card-target-id').value;
+            if (!cardId) return;
+
+            const form = document.getElementById('global-delete-card-form');
+            form.action = `/todos/${cardId}`;
+            form.submit();
+        }
+
+        function triggerRenameFromOptionsModal() {
+            closeCardOptionsModal();
+            if (currentActiveCard) {
+                quickRenameCard(currentActiveCard.dataset.id, currentActiveCard.dataset.title);
+            }
+        }
+
+        function triggerToggleCompleteFromOptionsModal() {
+            closeCardOptionsModal();
+            if (!currentActiveCard) return;
+            const cardId = currentActiveCard.dataset.id;
+            const form = document.getElementById('global-toggle-complete-form');
+            form.action = `/todos/${cardId}`;
+            form.submit();
+        }
+
+        function triggerArchiveFromOptionsModal() {
+            closeCardOptionsModal();
+            if (!currentActiveCard) return;
+            const cardId = currentActiveCard.dataset.id;
+            const form = document.getElementById('global-archive-card-form');
+            form.action = `/todos/${cardId}/archive`;
+            form.submit();
+        }
+
+        // Toggle card dropdown
+        function toggleCardDropdown(event, dropdownId) {
+            event.stopPropagation();
+            document.querySelectorAll('.card-dropdown, .column-menu-dropdown').forEach(d => {
+                if (d.id !== dropdownId) d.classList.add('hidden');
+            });
+            const menu = document.getElementById(dropdownId);
+            menu?.classList.toggle('hidden');
+        }
+
+        // Toggle column menu
+        function toggleColumnMenu(event, btn) {
+            event.stopPropagation();
+            document.querySelectorAll('.card-dropdown, .column-menu-dropdown').forEach(d => d.classList.add('hidden'));
+            const menu = btn.parentElement.querySelector('.column-menu-dropdown');
+            menu?.classList.toggle('hidden');
+        }
+
+        // Close dropdowns on outside click
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.card-dropdown, .column-menu-dropdown').forEach(d => d.classList.add('hidden'));
+        });
+
+        // Quick Rename Card
+        function quickRenameCard(id, currentTitle) {
+            document.getElementById('rename-card-id').value = id;
+            document.getElementById('rename-card-title').value = currentTitle;
+            document.getElementById('rename-card-modal').classList.remove('hidden');
+            document.getElementById('rename-card-modal').classList.add('flex');
+            setTimeout(() => document.getElementById('rename-card-title').focus(), 50);
+        }
+
+        function submitRenameCard() {
+            const id = document.getElementById('rename-card-id').value;
+            const newTitle = document.getElementById('rename-card-title').value.trim();
+            if (!newTitle) return;
+
+            fetch(`/todos/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'X-HTTP-Method-Override': 'PATCH',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ title: newTitle })
+            }).then(() => {
+                const card = document.querySelector(`.trello-card[data-id="${id}"]`);
+                if (card) {
+                    const titleEl = card.querySelector('.card-title');
+                    if (titleEl) titleEl.textContent = newTitle;
+                }
+                document.getElementById('rename-card-modal').classList.add('hidden');
+            }).catch(err => {
+                console.error(err);
+                window.location.reload();
+            });
+        }
+
+        // Column Rename
+        function openRenameListModal(categoryName) {
+            document.getElementById('rename-list-old-name').value = categoryName;
+            document.getElementById('rename-list-new-name').value = categoryName;
+            document.getElementById('rename-list-modal').classList.remove('hidden');
+            document.getElementById('rename-list-modal').classList.add('flex');
+            setTimeout(() => document.getElementById('rename-list-new-name').focus(), 50);
+        }
+
+        function closeRenameListModal() {
+            document.getElementById('rename-list-modal').classList.add('hidden');
+            document.getElementById('rename-list-modal').classList.remove('flex');
+        }
+
+        function submitRenameList() {
+            const oldName = document.getElementById('rename-list-old-name').value;
+            const newName = document.getElementById('rename-list-new-name').value.trim();
+            if (!newName || newName === oldName) {
+                closeRenameListModal();
+                return;
+            }
+
+            // Update in localStorage
+            let saved = getSavedLists();
+            const idx = saved.indexOf(oldName);
+            if (idx !== -1) {
+                saved[idx] = newName;
+                saveLists(saved);
+            }
+
+            // Send rename request to backend
+            fetch("{{ route('todos.categories.rename') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'X-HTTP-Method-Override': 'PATCH',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ old_category: oldName, new_category: newName })
+            }).then(() => {
+                window.location.reload();
+            }).catch(err => {
+                console.error(err);
+                window.location.reload();
+            });
+        }
+
+        // Column Delete via Modal Popup (No Windows Alert)
+        function confirmDeleteList(categoryName) {
+            document.getElementById('delete-list-target-input').value = categoryName;
+            document.getElementById('delete-list-target-text').textContent = `"${categoryName}"`;
+            const modal = document.getElementById('delete-list-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeleteListModal() {
+            const modal = document.getElementById('delete-list-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function executeDeleteList() {
+            const categoryName = document.getElementById('delete-list-target-input').value;
+            if (!categoryName) return;
+
+            // Remove from localStorage
+            let saved = getSavedLists();
+            saveLists(saved.filter(c => c !== categoryName));
+
+            // Send delete request to backend
+            fetch("{{ route('todos.categories.delete') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'X-HTTP-Method-Override': 'DELETE',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ category: categoryName })
+            }).then(() => {
+                const col = document.querySelector(`.trello-column[data-category="${categoryName}"]`);
+                if (col) {
+                    col.style.opacity = '0';
+                    col.style.transform = 'scale(0.95)';
+                    col.style.transition = 'all 0.2s ease';
+                    setTimeout(() => col.remove(), 200);
+                }
+                closeDeleteListModal();
+                window.showToast(`List "${categoryName}" berhasil dihapus.`, 'success');
+            }).catch(err => {
+                console.error(err);
+                closeDeleteListModal();
+                window.showToast('Gagal menghapus list. Silakan coba lagi.', 'error');
+            });
+        }
+
+        // Full Edit Modal
         function openEditModal(id, title, description, category, dueDate, priority, startTime, endTime, reminderAt) {
             const modal = document.getElementById('edit-modal');
             const form = document.getElementById('edit-todo-form');
-            const inputTitle = document.getElementById('edit-todo-title');
-            const textareaDesc = document.getElementById('edit-todo-description');
-            const selectCategory = document.getElementById('edit-todo-category');
-            const inputDueDate = document.getElementById('edit-todo-due-date');
-            const inputStartTime = document.getElementById('edit-todo-start-time');
-            const inputEndTime = document.getElementById('edit-todo-end-time');
-            const inputReminderAt = document.getElementById('edit-todo-reminder-at');
-            const selectPriority = document.getElementById('edit-todo-priority');
-            
             form.action = `/todos/${id}`;
-            inputTitle.value = title;
-            textareaDesc.value = description || '';
-            selectCategory.value = category || 'Personal';
-            inputDueDate.value = dueDate || '';
-            inputStartTime.value = startTime || '';
-            inputEndTime.value = endTime || '';
-            inputReminderAt.value = reminderAt || '';
-            selectPriority.value = priority || 'Medium';
+            document.getElementById('edit-todo-title').value = title;
+            document.getElementById('edit-todo-description').value = description || '';
+            document.getElementById('edit-todo-category').value = category || 'Personal';
+            document.getElementById('edit-todo-due-date').value = dueDate || '';
+            document.getElementById('edit-todo-start-time').value = startTime || '';
+            document.getElementById('edit-todo-end-time').value = endTime || '';
+            document.getElementById('edit-todo-priority').value = priority || 'Medium';
             modal.classList.remove('hidden');
         }
 
@@ -453,28 +837,174 @@
             document.getElementById('edit-modal').classList.add('hidden');
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const updateCounter = (input, counter) => {
-                document.getElementById(counter).textContent = `${input.value.length}/${input.maxLength}`;
-            };
-            document.getElementById('todo-title').addEventListener('input', (event) => updateCounter(event.target, 'title-count'));
-            document.getElementById('todo-description').addEventListener('input', (event) => updateCounter(event.target, 'description-count'));
-
+        // Add Card Modal
+        function openAddModal(prefilledCategory = '') {
             const addModal = document.getElementById('add-modal');
-            document.getElementById('open-add-modal').addEventListener('click', () => {
-                addModal.classList.remove('hidden');
-                addModal.classList.add('flex');
-                document.getElementById('todo-title').focus();
+            if (prefilledCategory) {
+                document.getElementById('add-modal-category').value = prefilledCategory;
+            }
+            addModal.classList.remove('hidden');
+            addModal.classList.add('flex');
+            setTimeout(() => document.getElementById('todo-title').focus(), 50);
+        }
+
+        function closeAddModal() {
+            const addModal = document.getElementById('add-modal');
+            addModal.classList.add('hidden');
+            addModal.classList.remove('flex');
+        }
+
+        function quickAddCard(category = '') {
+            openAddModal(category);
+        }
+
+        // Create New Empty List Column Card in DOM without creating todo
+        function createNewEmptyColumnDOM(listTitle) {
+            const container = document.getElementById('board-columns-container');
+            const addListContainer = document.getElementById('add-list-container');
+            
+            // Check if column already exists
+            if (document.querySelector(`.trello-column[data-category="${listTitle}"]`)) {
+                return;
+            }
+
+            const col = document.createElement('div');
+            col.className = 'trello-column w-72 sm:w-80 flex-shrink-0 rounded-2xl p-3 shadow-md border border-slate-200 dark:border-slate-800/80 bg-slate-200/80 dark:bg-[#181f2c] flex flex-col max-h-[calc(100vh-170px)]';
+            col.setAttribute('data-category', listTitle);
+
+            const escapedTitle = listTitle.replace(/"/g, '&quot;');
+            col.innerHTML = `
+                <div class="flex items-center justify-between px-2 py-1.5 mb-2">
+                    <div class="flex items-center gap-2 truncate">
+                        <h2 class="column-name text-sm font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-100 truncate">
+                            ${escapedTitle}
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                        <span class="text-xs font-bold text-slate-600 dark:text-slate-400 bg-white/70 dark:bg-slate-800 px-2 py-0.5 rounded-md count-badge border border-slate-200/60 dark:border-slate-700">0</span>
+                        <div class="relative inline-block text-left">
+                            <button type="button" onclick="toggleColumnMenu(event, this)"
+                                    class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-300/60 dark:hover:bg-slate-700/60 rounded-lg p-1 transition" title="Menu list">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/></svg>
+                            </button>
+                            <div class="column-menu-dropdown hidden absolute right-0 z-40 mt-1 w-44 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-800 text-xs">
+                                <button type="button" onclick="openRenameListModal('${escapedTitle}')"
+                                        class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/70 transition">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    <span>Edit Nama List</span>
+                                </button>
+                                <button type="button" onclick="quickAddCard('${escapedTitle}')"
+                                        class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/70 transition">
+                                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                    <span>Tambah Kartu</span>
+                                </button>
+                                <div class="my-1 border-t border-slate-100 dark:border-slate-700"></div>
+                                <button type="button" onclick="confirmDeleteList('${escapedTitle}')"
+                                        class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 transition">
+                                    <svg class="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <span>Hapus List</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sortable-list list-scrollbar flex-1 overflow-y-auto space-y-2.5 px-0.5 py-1 min-h-[60px]"
+                     data-column-type="category" data-column-val="${escapedTitle}">
+                    <div class="empty-placeholder text-center py-8 text-xs text-slate-400 dark:text-slate-500 border border-dashed border-slate-300 dark:border-slate-700/60 rounded-xl">
+                        Belum ada kartu di list ini.
+                    </div>
+                </div>
+                <div class="pt-2 mt-2 border-t border-slate-300/60 dark:border-slate-700/60 flex items-center justify-between">
+                    <button type="button" onclick="quickAddCard('${escapedTitle}')"
+                            class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50 px-3 py-1.5 rounded-xl transition flex-1 text-left">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <span>Add a card</span>
+                    </button>
+                    <button type="button" onclick="quickAddCard('${escapedTitle}')" 
+                            class="text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50 p-1.5 rounded-xl transition" title="Tambah kartu">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            container.insertBefore(col, addListContainer);
+            initSortable(col.querySelector('.sortable-list'));
+        }
+
+        function initSortable(listEl) {
+            if (!listEl || typeof Sortable === 'undefined') return;
+            new Sortable(listEl, {
+                group: 'kanban-cards',
+                animation: 200,
+                ghostClass: 'opacity-30',
+                chosenClass: 'scale-[1.02]',
+                dragClass: 'shadow-2xl',
+                filter: 'button, input, textarea, a, form, select, .no-drag, [data-no-drag]',
+                preventOnFilter: false,
+                onAdd: function (evt) {
+                    const cardId = evt.item.getAttribute('data-id');
+                    const targetCol = evt.to;
+                    const colVal = targetCol.getAttribute('data-column-val');
+
+                    fetch(`/todos/${cardId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': CSRF_TOKEN,
+                            'X-HTTP-Method-Override': 'PATCH',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ category: colVal })
+                    }).then(() => {
+                        updateListCounts();
+                    }).catch(err => {
+                        console.error('Drag error:', err);
+                        window.location.reload();
+                    });
+                }
             });
-            const closeAddModal = () => {
-                addModal.classList.add('hidden');
-                addModal.classList.remove('flex');
-            };
-            document.getElementById('close-add-modal').addEventListener('click', closeAddModal);
-            addModal.addEventListener('click', (event) => {
-                if (event.target === addModal) closeAddModal();
+        }
+
+        function updateListCounts() {
+            document.querySelectorAll('.trello-column').forEach((col) => {
+                const badge = col.querySelector('.count-badge');
+                const cards = col.querySelectorAll('.trello-card');
+                if (badge) badge.textContent = cards.length;
+                const placeholder = col.querySelector('.empty-placeholder');
+                if (placeholder) {
+                    placeholder.classList.toggle('hidden', cards.length > 0);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Restore any additional empty lists saved in localStorage
+            const savedLists = getSavedLists();
+            savedLists.forEach(title => {
+                createNewEmptyColumnDOM(title);
             });
 
+            // Initialize Sortable on all existing columns
+            document.querySelectorAll('.sortable-list').forEach(initSortable);
+
+            // Counter listeners
+            const updateCounter = (input, counter) => {
+                const el = document.getElementById(counter);
+                if (el) el.textContent = `${input.value.length}/${input.maxLength}`;
+            };
+            document.getElementById('todo-title')?.addEventListener('input', (e) => updateCounter(e.target, 'title-count'));
+            document.getElementById('todo-description')?.addEventListener('input', (e) => updateCounter(e.target, 'description-count'));
+
+            // Add modal listeners
+            document.getElementById('open-add-modal')?.addEventListener('click', () => openAddModal());
+            document.getElementById('close-add-modal')?.addEventListener('click', closeAddModal);
+            document.getElementById('add-modal')?.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('add-modal')) closeAddModal();
+            });
+
+            // Edit button bindings
             document.querySelectorAll('.edit-button').forEach((button) => {
                 button.addEventListener('click', () => openEditModal(
                     button.dataset.id,
@@ -489,83 +1019,113 @@
                 ));
             });
 
+            // Delete modal bindings
             const deleteModal = document.getElementById('delete-modal');
             let deleteForm;
-            document.querySelectorAll('.delete-todo-form').forEach((form) => form.addEventListener('submit', (event) => {
-                event.preventDefault();
+            document.querySelectorAll('.delete-todo-form').forEach((form) => form.addEventListener('submit', (e) => {
+                e.preventDefault();
                 deleteForm = form;
                 deleteModal.classList.remove('hidden');
                 deleteModal.classList.add('flex');
             }));
-            document.getElementById('cancel-delete').addEventListener('click', () => {
+            document.getElementById('cancel-delete')?.addEventListener('click', () => {
                 deleteModal.classList.add('hidden');
                 deleteModal.classList.remove('flex');
             });
-            document.getElementById('confirm-delete').addEventListener('click', () => deleteForm?.submit());
+            document.getElementById('confirm-delete')?.addEventListener('click', () => deleteForm?.submit());
 
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            // Inline "+ Add another list" (Creates empty card column directly without todo)
+            const btnShowAddList = document.getElementById('btn-show-add-list');
+            const formAddList = document.getElementById('form-add-list');
+            const btnCancelAddList = document.getElementById('btn-cancel-add-list');
+            const btnSubmitAddList = document.getElementById('btn-submit-add-list');
+            const inputNewList = document.getElementById('new-list-title');
 
-            function setupSortable(el, targetStatus) {
-                new Sortable(el, {
-                    group: 'shared-tasks',
-                    animation: 200,
-                    ghostClass: 'opacity-40',
-                    onAdd: function (evt) {
-                        const taskId = evt.item.getAttribute('data-id');
+            btnShowAddList?.addEventListener('click', () => {
+                btnShowAddList.classList.add('hidden');
+                formAddList.classList.remove('hidden');
+                inputNewList.focus();
+            });
 
-                        // Kirim permintaan update status via fetch PATCH
-                        fetch(`/todos/${taskId}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'X-HTTP-Method-Override': 'PATCH'
-                            },
-                            body: JSON.stringify({ _method: 'PATCH' })
-                        }).then(() => {
-                            window.location.reload();
-                        }).catch(err => console.error(err));
-                    }
-                });
-            }
+            btnCancelAddList?.addEventListener('click', () => {
+                formAddList.classList.add('hidden');
+                btnShowAddList.classList.remove('hidden');
+                inputNewList.value = '';
+            });
 
-            setupSortable(document.getElementById('todo-list'), 0);
-            setupSortable(document.getElementById('done-list'), 1);
+            btnSubmitAddList?.addEventListener('click', () => {
+                const title = inputNewList.value.trim();
+                if (!title) return;
+                
+                // 1. Immediately create column card in DOM
+                createNewEmptyColumnDOM(title);
 
-            document.addEventListener('keydown', (event) => {
-                if (event.altKey || event.ctrlKey || event.metaKey) return;
+                // 2. Save in localStorage so it persists on reload
+                let saved = getSavedLists();
+                if (!saved.includes(title)) {
+                    saved.push(title);
+                    saveLists(saved);
+                }
 
-                if (event.key === 'Escape') {
+                // Reset form
+                formAddList.classList.add('hidden');
+                btnShowAddList.classList.remove('hidden');
+                inputNewList.value = '';
+
+                // Scroll horizontally to the new list
+                const container = document.querySelector('main');
+                if (container) container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
+            });
+
+            inputNewList?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btnSubmitAddList.click();
+                } else if (e.key === 'Escape') {
+                    btnCancelAddList.click();
+                }
+            });
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.altKey || e.ctrlKey || e.metaKey) return;
+                const active = document.activeElement;
+                if (active && (active.isContentEditable || active.closest('input, textarea, select, [contenteditable="true"]'))) return;
+
+                if (e.key === 'Escape') {
+                    closeCardOptionsModal();
+                    closeDeleteCardModal();
+                    closeDeleteListModal();
                     closeAddModal();
                     closeEditModal();
-                    document.getElementById('cancel-delete').click();
+                    closeRenameListModal();
+                    document.getElementById('rename-card-modal')?.classList.add('hidden');
+                    document.getElementById('shortcuts-modal')?.classList.add('hidden');
                     return;
                 }
 
-                const target = event.target;
-                if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select, [contenteditable="true"]'))) return;
-
-                if (event.key.toLowerCase() === 'n') {
-                    event.preventDefault();
-                    document.getElementById('open-add-modal').click();
+                if (e.key.toLowerCase() === 'n') {
+                    e.preventDefault();
+                    openAddModal();
                     return;
                 }
 
-                if (event.key === '/') {
-                    event.preventDefault();
+                if (e.key === '/') {
+                    e.preventDefault();
+                    document.getElementById('filter-drawer')?.classList.remove('hidden');
                     document.querySelector('input[type="search"][name="search"]')?.focus();
                     return;
                 }
 
-                const focusedCard = document.activeElement?.closest('.task-card');
+                const focusedCard = document.activeElement?.closest('.trello-card');
                 if (!focusedCard) return;
 
-                if (event.key.toLowerCase() === 'e') {
-                    event.preventDefault();
+                if (e.key.toLowerCase() === 'e') {
+                    e.preventDefault();
                     focusedCard.querySelector('.edit-button')?.click();
-                } else if (event.key.toLowerCase() === 'd' && focusedCard.closest('#todo-list')) {
-                    event.preventDefault();
-                    focusedCard.querySelector('.complete-todo-button')?.click();
+                } else if (e.key.toLowerCase() === 'd') {
+                    e.preventDefault();
+                    focusedCard.querySelector('form[action*="todos/"][action$="update"] button')?.click();
                 }
             });
         });
