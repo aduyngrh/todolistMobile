@@ -16,9 +16,14 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $user = $request->user();
+        $totalTodos = \App\Models\Todo::where('user_id', $user->id)->count();
+        $completedTodos = \App\Models\Todo::where('user_id', $user->id)->where('completed', true)->count();
+        $pendingTodos = \App\Models\Todo::where('user_id', $user->id)->where('completed', false)->count();
+        $totalNotes = \App\Models\DailyNote::where('user_id', $user->id)->count();
+        $progress = $totalTodos > 0 ? (int) round(($completedTodos / $totalTodos) * 100) : 0;
+
+        return view('profile.edit', compact('user', 'totalTodos', 'completedTodos', 'pendingTodos', 'totalNotes', 'progress'));
     }
 
     /**

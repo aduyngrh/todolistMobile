@@ -31,17 +31,50 @@
                 </header>
             @endisset
 
-            <!-- Page Content -->
-            @if (session('success'))
-                <div id="flash-message" class="fixed right-5 top-5 z-50 flex items-center gap-3 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 shadow-xl dark:border-emerald-800 dark:bg-gray-900 dark:text-emerald-300" role="status">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-300" aria-hidden="true"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6"/></svg></span>
-                    <span>{{ session('success') }}</span>
-                    <button type="button" onclick="document.getElementById('flash-message').remove()" class="ml-2 inline-flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200" aria-label="Tutup"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/></svg></button>
-                </div>
-                <script>
-                    setTimeout(() => document.getElementById('flash-message')?.remove(), 3500);
-                </script>
-            @endif
+            <!-- Toast Notification System -->
+            <div id="toast-container" class="fixed right-5 top-5 z-50 flex flex-col gap-2.5 pointer-events-none">
+                @if (session('success'))
+                    <div id="flash-message" class="pointer-events-auto flex items-center gap-3 rounded-2xl border border-emerald-300 dark:border-emerald-700/80 bg-white/95 dark:bg-[#181f2c]/95 px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-white shadow-2xl backdrop-blur-md transition-all duration-300" role="status">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-400 text-base font-black" aria-hidden="true">✓</span>
+                        <span>{{ session('success') }}</span>
+                        <button type="button" onclick="document.getElementById('flash-message')?.remove()" class="ml-2 inline-flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 text-lg font-bold" aria-label="Tutup">×</button>
+                    </div>
+                    <script>
+                        setTimeout(() => {
+                            const el = document.getElementById('flash-message');
+                            if (el) {
+                                el.style.opacity = '0';
+                                el.style.transform = 'translateY(-8px)';
+                                setTimeout(() => el.remove(), 300);
+                            }
+                        }, 4000);
+                    </script>
+                @endif
+            </div>
+
+            <script>
+                window.showToast = function (message, type = 'success') {
+                    const container = document.getElementById('toast-container');
+                    if (!container) return;
+                    const toast = document.createElement('div');
+                    const isError = type === 'error';
+                    const borderColor = isError ? 'border-rose-300 dark:border-rose-700/80' : 'border-emerald-300 dark:border-emerald-700/80';
+                    const iconBg = isError ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/80 dark:text-rose-400' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-400';
+                    const icon = isError ? '✕' : '✓';
+                    toast.className = `pointer-events-auto flex items-center gap-3 rounded-2xl border ${borderColor} bg-white/95 dark:bg-[#181f2c]/95 px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-white shadow-2xl backdrop-blur-md transition-all duration-300 transform translate-y-0`;
+                    toast.innerHTML = `
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${iconBg} text-base font-black" aria-hidden="true">${icon}</span>
+                        <span>${message}</span>
+                        <button type="button" onclick="this.parentElement.remove()" class="ml-2 inline-flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 text-lg font-bold" aria-label="Tutup">×</button>
+                    `;
+                    container.appendChild(toast);
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(-8px)';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 4000);
+                };
+            </script>
             <main>
                 {{ $slot }}
             </main>

@@ -39,7 +39,7 @@ class TodoController extends Controller
         $todos = $query
             ->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END")
             ->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate(50)
             ->withQueryString();
         $todoItems = $todos->getCollection();
 
@@ -48,7 +48,17 @@ class TodoController extends Controller
             ->orderByDesc('archived_at')
             ->get();
 
-        return view('todos.index', compact('todos', 'todoItems', 'archivedTodos'));
+        $userCategories = \App\Models\Todo::where('user_id', Auth::id())
+            ->whereNull('archived_at')
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->pluck('category')
+            ->toArray();
+
+        $categories = !empty($userCategories) ? array_values(array_unique($userCategories)) : [];
+
+        return view('todos.index', compact('todos', 'todoItems', 'archivedTodos', 'categories'));
     }
 
     public function calendar(Request $request)
@@ -101,7 +111,7 @@ class TodoController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'category' => 'required|string|in:Work,Personal,Urgent',
+            'category' => 'required|string|max:100',
             'due_date' => 'nullable|date',
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',
@@ -171,12 +181,54 @@ class TodoController extends Controller
         if ($request->has('priority')) {
             $todo->priority = $request->priority;
         }
-        if (! $request->has('title') && ! $request->has('description') && ! $request->has('category') && ! $request->has('due_date') && ! $request->has('start_time') && ! $request->has('end_time') && ! $request->has('reminder_at') && ! $request->has('priority')) {
+        if ($request->has('completed')) {
+            $todo->completed = $request->boolean('completed');
+        }
+        if (! $request->has('title') && ! $request->has('description') && ! $request->has('category') && ! $request->has('completed') && ! $request->has('due_date') && ! $request->has('start_time') && ! $request->has('end_time') && ! $request->has('reminder_at') && ! $request->has('priority')) {
             $todo->completed = ! $todo->completed;
         }
         $todo->save();
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'todo' => $todo]);
+        }
+
         return redirect()->route('todos.index')->with('success', 'Tugas berhasil diperbarui.');
+    }
+
+    public function renameCategory(Request $request)
+    {
+        $request->validate([
+            'old_category' => 'required|string',
+            'new_category' => 'required|string|max:100',
+        ]);
+
+        \App\Models\Todo::where('user_id', Auth::id())
+            ->where('category', $request->old_category)
+            ->update(['category' => $request->new_category]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('todos.index')->with('success', 'Nama list berhasil diubah.');
+    }
+
+    public function deleteCategory(Request $request)
+    {
+        $request->validate([
+            'category' => 'required|string',
+        ]);
+
+        \App\Models\Todo::where('user_id', Auth::id())
+            ->where('category', $request->category)
+            ->delete();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('todos.index')->with('success', 'List berhasil dihapus.');
     }
 
     public function archive(string $id)
@@ -243,6 +295,6 @@ class TodoController extends Controller
         Gate::authorize('delete', $todo);
         $todo->delete();
 
-        return redirect()->route('todos.index')->with('success', 'Tugas berhasil dipindahkan ke sampah.');
+        return redirect()->route('todos.index')->with('success', 'Kartu berhasil dihapus.');
     }
 }
