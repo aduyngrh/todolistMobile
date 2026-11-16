@@ -29,9 +29,24 @@ class PasswordUpdateTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+        $this->assertFalse(Hash::check('password', $user->password));
+
+        $this->post('/logout');
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'new-password',
+        ])->assertRedirect('/dashboard');
+
+        $this->assertAuthenticatedAs($user);
+
+        $this->post('/logout');
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertSessionHasErrors('email');
     }
 
-    public function test_correct_password_must_be_provided_to_update_password(): void
+    public function test_password_confirmation_is_required_to_update_password(): void
     {
         $user = User::factory()->create();
 
@@ -39,13 +54,11 @@ class PasswordUpdateTest extends TestCase
             ->actingAs($user)
             ->from('/profile')
             ->put('/password', [
-                'current_password' => 'wrong-password',
                 'password' => 'new-password',
-                'password_confirmation' => 'new-password',
             ]);
 
         $response
-            ->assertSessionHasErrorsIn('updatePassword', 'current_password')
+            ->assertSessionHasErrorsIn('updatePassword', 'password')
             ->assertRedirect('/profile');
     }
 }
