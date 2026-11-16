@@ -524,9 +524,8 @@
     <!-- Scripts: Drag & Drop, Dropdowns, Add List, and Card Operations -->
     <script>
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        const STORAGE_KEY = 'trello_user_lists_clean';
+        const STORAGE_KEY = 'trello_user_lists_clean_{{ Auth::id() }}';
 
-        // Clear old test lists from localStorage
         if (localStorage.getItem('trello_user_custom_lists')) {
             localStorage.removeItem('trello_user_custom_lists');
         }
