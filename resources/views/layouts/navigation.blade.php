@@ -1,43 +1,42 @@
 <nav x-data="{ open: false }" class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 text-slate-900 shadow-sm backdrop-blur transition-colors dark:border-slate-800 dark:bg-slate-950/90 dark:text-white">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" aria-label="My Task Board">
-                        <x-application-logo-clean class="block h-9 w-auto text-indigo-600 dark:text-indigo-400" />
-                    </a>
-                </div>
-
-                <!-- Navigation Links -->
-                <div class="hidden flex-1 items-center justify-between gap-6 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('todos.index')" :active="request()->routeIs('todos.index')">
-                        {{ __('Todo List') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('todos.calendar')" :active="request()->routeIs('todos.calendar')">
-                        {{ __('Calendar') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('todos.planner')" :active="request()->routeIs('todos.planner')">
-                        {{ __('Planner') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('daily-notes.index')" :active="request()->routeIs('daily-notes.*')">
-                        {{ __('Daily Notes') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('todos.trash')" :active="request()->routeIs('todos.trash')">
-                        {{ __('Trash') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
-                        {{ __('Profile') }}
-                    </x-nav-link>
-                </div>
+        <div class="flex h-16 items-center justify-between gap-2 sm:gap-4">
+            <!-- Left: Logo -->
+            <div class="shrink-0 flex items-center sm:flex-1 sm:max-w-[200px]">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group" aria-label="My Task Board">
+                    <x-application-logo-clean class="block h-9 w-auto text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-105" />
+                    <span class="font-extrabold text-base tracking-tight text-slate-800 dark:text-white hidden xl:inline">TaskBoard</span>
+                </a>
             </div>
 
-            <!-- User actions -->
-            <div class="hidden sm:flex sm:items-center sm:ms-8">
+            <!-- Center: Navigation Links (Tengah) -->
+            <div class="hidden sm:flex flex-1 items-center justify-center gap-1 sm:gap-1.5 md:gap-3 lg:gap-5 sm:-my-px h-full">
+                <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard') }}
+                </x-nav-link>
+                <x-nav-link :href="route('todos.index')" :active="request()->routeIs('todos.index')">
+                    {{ __('Todo List') }}
+                </x-nav-link>
+                <x-nav-link :href="route('todos.calendar')" :active="request()->routeIs('todos.calendar')">
+                    {{ __('Calendar') }}
+                </x-nav-link>
+                <x-nav-link :href="route('todos.planner')" :active="request()->routeIs('todos.planner')">
+                    {{ __('Planner') }}
+                </x-nav-link>
+                <x-nav-link :href="route('daily-notes.index')" :active="request()->routeIs('daily-notes.*')">
+                    {{ __('Daily Notes') }}
+                </x-nav-link>
+                <x-nav-link :href="route('todos.trash')" :active="request()->routeIs('todos.trash')">
+                    {{ __('Trash') }}
+                </x-nav-link>
+                <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
+                    {{ __('Profile') }}
+                </x-nav-link>
+            </div>
+
+            <!-- Right: User actions -->
+            <div class="hidden sm:flex sm:flex-1 sm:max-w-[200px] sm:items-center sm:justify-end shrink-0">
                 <x-dropdown align="right" width="48" content-classes="bg-white dark:bg-slate-900">
                     <x-slot name="trigger">
                         <button type="button" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
