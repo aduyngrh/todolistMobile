@@ -35,13 +35,12 @@ class Todo extends Model
     /**
      * The attributes that are mass assignable.
      */
-
-
     protected $fillable = [
         'user_id',
         'title',
         'description',
         'category',
+        'position',
         'due_date',
         'start_time',
         'end_time',

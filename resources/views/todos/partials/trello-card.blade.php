@@ -38,17 +38,6 @@
 
         <!-- Card Action Buttons (Direct Quick Icons + Titik 3) -->
         <div class="flex items-center gap-0.5 shrink-0 -mr-1 -mt-0.5 no-drag">
-            <!-- Complete Checkmark Button -->
-            <form method="POST" action="{{ route('todos.update', $todo) }}" class="inline no-drag">
-                @csrf @method('PATCH')
-                <button type="submit" class="p-1 rounded-lg text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition no-drag"
-                        title="{{ $todo->completed ? 'Tandai belum selesai' : 'Tandai selesai' }}">
-                    <svg class="w-3.5 h-3.5 {{ $todo->completed ? 'text-emerald-500' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </button>
-            </form>
-
             <!-- Edit Pencil Button (Direct Edit) -->
             <button type="button" onclick="handleCardEditClick(this)"
                     class="p-1 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition no-drag"
