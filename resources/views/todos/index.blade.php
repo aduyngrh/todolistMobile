@@ -75,10 +75,10 @@
                         $categoryTodos = $todoItems->filter(fn($t) => strcasecmp($t->category, $categoryName) === 0);
                     @endphp
                     <div class="trello-column w-72 sm:w-80 flex-shrink-0 rounded-2xl p-3 shadow-md border border-slate-200 dark:border-slate-800/80 bg-slate-200/80 dark:bg-[#181f2c] flex flex-col max-h-[calc(100vh-170px)]"
-                         data-category="{{ $categoryName }}">
+                         data-category="{{ $categoryName }}" data-custom-list="false">
                         
                         <!-- Column Header -->
-                        <div class="flex items-center justify-between px-2 py-1.5 mb-2">
+                        <div class="column-drag-handle flex items-center justify-between px-2 py-1.5 mb-2 cursor-grab active:cursor-grabbing">
                             <div class="flex items-center gap-2 truncate">
                                 <h2 class="column-name text-sm font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-100 truncate">
                                     {{ $categoryName }}
@@ -525,6 +525,7 @@
     <script>
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         const STORAGE_KEY = 'trello_user_lists_clean_{{ Auth::id() }}';
+        const LIST_ORDER_KEY = 'trello_user_list_order_{{ Auth::id() }}';
 
         if (localStorage.getItem('trello_user_custom_lists')) {
             localStorage.removeItem('trello_user_custom_lists');
@@ -540,6 +541,34 @@
 
         function saveLists(lists) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(lists));
+        }
+
+        function getListOrder() {
+            try {
+                return JSON.parse(localStorage.getItem(LIST_ORDER_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveListOrder() {
+            localStorage.setItem(LIST_ORDER_KEY, JSON.stringify(
+                Array.from(document.querySelectorAll('#board-columns-container .trello-column'))
+                    .map(column => column.dataset.category)
+            ));
+        }
+
+        function applyListOrder() {
+            const container = document.getElementById('board-columns-container');
+            const addListContainer = document.getElementById('add-list-container');
+            const columns = Array.from(container.querySelectorAll('.trello-column'));
+            const savedOrder = getListOrder();
+            const ordered = [
+                ...savedOrder.map(category => columns.find(column => column.dataset.category === category)).filter(Boolean),
+                ...columns.filter(column => !savedOrder.includes(column.dataset.category))
+            ];
+
+            ordered.forEach(column => container.insertBefore(column, addListContainer));
         }
 
         let currentActiveCard = null;
@@ -870,10 +899,11 @@
             const col = document.createElement('div');
             col.className = 'trello-column w-72 sm:w-80 flex-shrink-0 rounded-2xl p-3 shadow-md border border-slate-200 dark:border-slate-800/80 bg-slate-200/80 dark:bg-[#181f2c] flex flex-col max-h-[calc(100vh-170px)]';
             col.setAttribute('data-category', listTitle);
+            col.setAttribute('data-custom-list', 'true');
 
             const escapedTitle = listTitle.replace(/"/g, '&quot;');
             col.innerHTML = `
-                <div class="flex items-center justify-between px-2 py-1.5 mb-2">
+                <div class="column-drag-handle flex items-center justify-between px-2 py-1.5 mb-2 cursor-grab active:cursor-grabbing">
                     <div class="flex items-center gap-2 truncate">
                         <h2 class="column-name text-sm font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-100 truncate">
                             ${escapedTitle}
@@ -957,13 +987,37 @@
                         },
                         body: JSON.stringify({ category: colVal })
                     }).then(() => {
+                        saveCardOrder(targetCol);
                         updateListCounts();
                     }).catch(err => {
                         console.error('Drag error:', err);
                         window.location.reload();
                     });
+                },
+                onUpdate: function (evt) {
+                    saveCardOrder(evt.to);
+                },
+                onRemove: function (evt) {
+                    saveCardOrder(evt.from);
                 }
             });
+        }
+
+        function saveCardOrder(listEl) {
+            const items = Array.from(listEl.querySelectorAll('.trello-card')).map((card, position) => ({
+                id: Number(card.dataset.id),
+                position
+            }));
+
+            fetch('{{ route('todos.reorder') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ items })
+            }).catch(() => window.location.reload());
         }
 
         function updateListCounts() {
@@ -987,6 +1041,16 @@
 
             // Initialize Sortable on all existing columns
             document.querySelectorAll('.sortable-list').forEach(initSortable);
+            applyListOrder();
+            new Sortable(document.getElementById('board-columns-container'), {
+                animation: 200,
+                draggable: '.trello-column',
+                handle: '.column-drag-handle',
+                filter: '#add-list-container',
+                onEnd: function () {
+                    requestAnimationFrame(saveListOrder);
+                }
+            });
 
             // Counter listeners
             const updateCounter = (input, counter) => {
@@ -1065,6 +1129,7 @@
                     saved.push(title);
                     saveLists(saved);
                 }
+                saveListOrder();
 
                 // Reset form
                 formAddList.classList.add('hidden');

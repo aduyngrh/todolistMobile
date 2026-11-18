@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Todo;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -13,7 +16,7 @@ class TodoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\Todo::where('user_id', Auth::id())
+        $query = Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
             ->with(['subtasks', 'comments.user', 'comments.children.user']);
 
@@ -37,36 +40,55 @@ class TodoController extends Controller
         }
 
         $todos = $query
-            ->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END")
-            ->orderBy('created_at', 'desc')
+            ->orderBy('category')
+            ->orderBy('position')
+            ->orderBy('id')
             ->paginate(50)
             ->withQueryString();
         $todoItems = $todos->getCollection();
 
-        $archivedTodos = \App\Models\Todo::where('user_id', Auth::id())
+        $archivedTodos = Todo::where('user_id', Auth::id())
             ->whereNotNull('archived_at')
             ->orderByDesc('archived_at')
             ->get();
 
-        $userCategories = \App\Models\Todo::where('user_id', Auth::id())
+        $categories = Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
             ->whereNotNull('category')
             ->where('category', '!=', '')
-            ->distinct()
+            ->select('category')
+            ->groupBy('category')
+            ->orderByRaw('MIN(position)')
+            ->orderByRaw('MIN(id)')
             ->pluck('category')
             ->toArray();
 
-        $categories = !empty($userCategories) ? array_values(array_unique($userCategories)) : [];
-
         return view('todos.index', compact('todos', 'todoItems', 'archivedTodos', 'categories'));
+    }
+
+    public function reorder(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'items' => ['required', 'array'],
+            'items.*.id' => ['required', 'integer'],
+            'items.*.position' => ['required', 'integer', 'min:0'],
+        ]);
+
+        foreach ($data['items'] as $item) {
+            Todo::where('id', $item['id'])
+                ->where('user_id', Auth::id())
+                ->update(['position' => $item['position']]);
+        }
+
+        return response()->json(['saved' => true]);
     }
 
     public function calendar(Request $request)
     {
         $month = $request->input('month', now()->format('Y-m'));
         abort_unless(preg_match('/^\d{4}-\d{2}$/', $month), 404);
-        $monthDate = \Carbon\Carbon::createFromFormat('!Y-m', $month)->startOfMonth();
-        $todos = \App\Models\Todo::where('user_id', Auth::id())
+        $monthDate = Carbon::createFromFormat('!Y-m', $month)->startOfMonth();
+        $todos = Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
             ->whereNotNull('due_date')
             ->whereBetween('due_date', [$monthDate->copy()->startOfMonth(), $monthDate->copy()->endOfMonth()])
@@ -82,8 +104,8 @@ class TodoController extends Controller
         $date = $request->input('date', now()->toDateString());
         abort_unless(preg_match('/^\d{4}-\d{2}-\d{2}$/', $date), 404);
 
-        $plannerDate = \Carbon\Carbon::createFromFormat('!Y-m-d', $date)->startOfDay();
-        $todos = \App\Models\Todo::where('user_id', Auth::id())
+        $plannerDate = Carbon::createFromFormat('!Y-m-d', $date)->startOfDay();
+        $todos = Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
             ->whereDate('due_date', $date)
             ->with('subtasks')
@@ -119,11 +141,16 @@ class TodoController extends Controller
             'priority' => 'required|string|in:High,Medium,Low',
         ]);
 
-        \App\Models\Todo::create([
+        $position = (int) Todo::where('user_id', Auth::id())
+            ->where('category', $request->category)
+            ->max('position') + 1;
+
+        Todo::create([
             'user_id' => Auth::id(),
-            'title'   => $request->title,
+            'title' => $request->title,
             'description' => $request->description,
             'category' => $request->category,
+            'position' => $position,
             'due_date' => $request->due_date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
@@ -155,7 +182,7 @@ class TodoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $todo = \App\Models\Todo::findOrFail($id);
+        $todo = Todo::findOrFail($id);
         Gate::authorize('update', $todo);
         if ($request->has('title')) {
             $todo->title = $request->title;
@@ -203,7 +230,7 @@ class TodoController extends Controller
             'new_category' => 'required|string|max:100',
         ]);
 
-        \App\Models\Todo::where('user_id', Auth::id())
+        Todo::where('user_id', Auth::id())
             ->where('category', $request->old_category)
             ->update(['category' => $request->new_category]);
 
@@ -220,7 +247,7 @@ class TodoController extends Controller
             'category' => 'required|string',
         ]);
 
-        \App\Models\Todo::where('user_id', Auth::id())
+        Todo::where('user_id', Auth::id())
             ->where('category', $request->category)
             ->delete();
 
@@ -233,7 +260,7 @@ class TodoController extends Controller
 
     public function archive(string $id)
     {
-        $todo = \App\Models\Todo::where('user_id', Auth::id())->findOrFail($id);
+        $todo = Todo::where('user_id', Auth::id())->findOrFail($id);
         Gate::authorize('update', $todo);
         $todo->update(['archived_at' => now()]);
 
@@ -242,7 +269,7 @@ class TodoController extends Controller
 
     public function restore(string $id)
     {
-        $todo = \App\Models\Todo::withTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        $todo = Todo::withTrashed()->where('user_id', Auth::id())->findOrFail($id);
         Gate::authorize('restore', $todo);
         $todo->update(['archived_at' => null]);
 
@@ -251,7 +278,7 @@ class TodoController extends Controller
 
     public function trash(Request $request)
     {
-        $query = \App\Models\Todo::onlyTrashed()->where('user_id', Auth::id());
+        $query = Todo::onlyTrashed()->where('user_id', Auth::id());
 
         if ($search = $request->string('search')->trim()->toString()) {
             $query->where(function ($query) use ($search) {
@@ -270,7 +297,7 @@ class TodoController extends Controller
 
     public function restoreFromTrash(string $id)
     {
-        $todo = \App\Models\Todo::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        $todo = Todo::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
         Gate::authorize('restore', $todo);
         $todo->restore();
 
@@ -279,7 +306,7 @@ class TodoController extends Controller
 
     public function forceDestroy(string $id)
     {
-        $todo = \App\Models\Todo::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        $todo = Todo::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
         Gate::authorize('forceDelete', $todo);
         $todo->forceDelete();
 
@@ -291,7 +318,7 @@ class TodoController extends Controller
      */
     public function destroy(string $id)
     {
-        $todo = \App\Models\Todo::where('user_id', Auth::id())->findOrFail($id);
+        $todo = Todo::where('user_id', Auth::id())->findOrFail($id);
         Gate::authorize('delete', $todo);
         $todo->delete();
 
