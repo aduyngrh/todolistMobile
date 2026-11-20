@@ -32,7 +32,7 @@
 
     <!-- Card Title & Actions Row -->
     <div class="flex items-start justify-between gap-2">
-        <h3 class="card-title text-[13.5px] font-semibold leading-snug text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-white transition flex-1 {{ $todo->completed ? 'line-through text-slate-400 dark:text-slate-500' : '' }}">
+        <h3 class="card-title text-[13.5px] font-semibold leading-snug text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-white transition flex-1">
             {{ $todo->title }}
         </h3>
 
