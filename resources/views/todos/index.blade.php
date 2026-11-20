@@ -413,12 +413,6 @@
                     <span>Ganti Judul Kartu</span>
                 </button>
 
-                <button type="button" onclick="triggerToggleCompleteFromOptionsModal()"
-                        class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60 transition">
-                    <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                    <span>Tandai Selesai / Belum Selesai</span>
-                </button>
-
                 <button type="button" onclick="triggerArchiveFromOptionsModal()"
                         class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60 transition">
                     <svg class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
@@ -505,10 +499,6 @@
                 <div class="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
                     <span class="text-slate-600 dark:text-slate-300">Edit kartu terpilih</span>
                     <kbd class="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 font-mono font-bold">E</kbd>
-                </div>
-                <div class="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
-                    <span class="text-slate-600 dark:text-slate-300">Tandai selesai / belum selesai</span>
-                    <kbd class="rounded bg-slate-100 dark:bg-slate-700 px-2 py-1 font-mono font-bold">D</kbd>
                 </div>
                 <div class="flex items-center justify-between py-1.5">
                     <span class="text-slate-600 dark:text-slate-300">Tutup modal dialog</span>
