@@ -123,7 +123,7 @@
                         <div class="sortable-list list-scrollbar flex-1 overflow-y-auto space-y-2.5 px-0.5 py-1 min-h-[60px]"
                              data-column-type="category" data-column-val="{{ $categoryName }}">
                             @foreach($categoryTodos as $todo)
-                                @include('todos.partials.trello-card', ['todo' => $todo])
+                                @include('todos.partials.todo-card', ['todo' => $todo])
                             @endforeach
                             <div class="empty-placeholder text-center py-8 text-xs text-slate-400 dark:text-slate-500 border border-dashed border-slate-300 dark:border-slate-700/60 rounded-xl {{ $categoryTodos->isEmpty() ? '' : 'hidden' }}">
                                 Belum ada kartu di list ini.
@@ -264,20 +264,10 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tanggal Tenggat</label>
-                        <input type="date" name="due_date"
-                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Jam Mulai</label>
-                        <input type="time" name="start_time" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Jam Selesai</label>
-                        <input type="time" name="end_time" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
-                    </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tanggal Tenggat</label>
+                    <input type="date" name="due_date"
+                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
                 </div>
 
                 <div class="mt-3 flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
@@ -329,20 +319,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tenggat</label>
-                                <input type="date" id="edit-todo-due-date" name="due_date" 
-                                       class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Mulai</label>
-                                <input type="time" id="edit-todo-start-time" name="start_time" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Selesai</label>
-                                <input type="time" id="edit-todo-end-time" name="end_time" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tenggat</label>
+                            <input type="date" id="edit-todo-due-date" name="due_date"
+                                   class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
                         </div>
                     </div>
                     <div class="px-6 py-4 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#131b28]">
@@ -565,7 +545,7 @@
 
         // Card Options Modal (titik 3 on card)
         function openCardOptionsModal(btn) {
-            const card = btn.closest('.trello-card');
+            const card = btn.closest('.todo-card');
             if (!card) return;
             currentActiveCard = card;
 
@@ -585,7 +565,7 @@
 
         // Direct Card Edit (Pencil button or from modal)
         function handleCardEditClick(btn) {
-            const card = btn.closest('.trello-card');
+            const card = btn.closest('.todo-card');
             if (!card) return;
             openEditModal(
                 card.dataset.id,
@@ -594,8 +574,6 @@
                 card.dataset.category,
                 card.dataset.dueDate,
                 card.dataset.priority,
-                card.dataset.startTime,
-                card.dataset.endTime,
                 card.dataset.reminderAt
             );
         }
@@ -610,8 +588,6 @@
                     currentActiveCard.dataset.category,
                     currentActiveCard.dataset.dueDate,
                     currentActiveCard.dataset.priority,
-                    currentActiveCard.dataset.startTime,
-                    currentActiveCard.dataset.endTime,
                     currentActiveCard.dataset.reminderAt
                 );
             }
@@ -619,7 +595,7 @@
 
         // Direct Card Delete (Trash button or from modal)
         function handleCardDeleteClick(btn) {
-            const card = btn.closest('.trello-card');
+            const card = btn.closest('.todo-card');
             if (!card) return;
             openDeleteCardModal(card.dataset.id, card.dataset.title);
         }
@@ -726,7 +702,7 @@
                 },
                 body: JSON.stringify({ title: newTitle })
             }).then(() => {
-                const card = document.querySelector(`.trello-card[data-id="${id}"]`);
+                const card = document.querySelector(`.todo-card[data-id="${id}"]`);
                 if (card) {
                     const titleEl = card.querySelector('.card-title');
                     if (titleEl) titleEl.textContent = newTitle;
@@ -837,7 +813,7 @@
         }
 
         // Full Edit Modal
-        function openEditModal(id, title, description, category, dueDate, priority, startTime, endTime, reminderAt) {
+        function openEditModal(id, title, description, category, dueDate, priority, reminderAt) {
             const modal = document.getElementById('edit-modal');
             const form = document.getElementById('edit-todo-form');
             form.action = `/todos/${id}`;
@@ -845,8 +821,6 @@
             document.getElementById('edit-todo-description').value = description || '';
             document.getElementById('edit-todo-category').value = category || 'Personal';
             document.getElementById('edit-todo-due-date').value = dueDate || '';
-            document.getElementById('edit-todo-start-time').value = startTime || '';
-            document.getElementById('edit-todo-end-time').value = endTime || '';
             document.getElementById('edit-todo-priority').value = priority || 'Medium';
             modal.classList.remove('hidden');
         }
@@ -994,7 +968,7 @@
         }
 
         function saveCardOrder(listEl) {
-            const items = Array.from(listEl.querySelectorAll('.trello-card')).map((card, position) => ({
+            const items = Array.from(listEl.querySelectorAll('.todo-card')).map((card, position) => ({
                 id: Number(card.dataset.id),
                 position
             }));
@@ -1013,7 +987,7 @@
         function updateListCounts() {
             document.querySelectorAll('.trello-column').forEach((col) => {
                 const badge = col.querySelector('.count-badge');
-                const cards = col.querySelectorAll('.trello-card');
+                const cards = col.querySelectorAll('.todo-card');
                 if (badge) badge.textContent = cards.length;
                 const placeholder = col.querySelector('.empty-placeholder');
                 if (placeholder) {
@@ -1066,8 +1040,6 @@
                     button.dataset.category,
                     button.dataset.dueDate,
                     button.dataset.priority,
-                    button.dataset.startTime,
-                    button.dataset.endTime,
                     button.dataset.reminderAt,
                 ));
             });
@@ -1171,7 +1143,7 @@
                     return;
                 }
 
-                const focusedCard = document.activeElement?.closest('.trello-card');
+                const focusedCard = document.activeElement?.closest('.todo-card');
                 if (!focusedCard) return;
 
                 if (e.key.toLowerCase() === 'e') {

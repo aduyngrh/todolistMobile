@@ -109,8 +109,6 @@ class TodoController extends Controller
             ->whereNull('archived_at')
             ->whereDate('due_date', $date)
             ->with('subtasks')
-            ->orderByRaw('start_time IS NULL')
-            ->orderBy('start_time')
             ->orderByRaw("CASE priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END")
             ->get();
 
@@ -135,8 +133,6 @@ class TodoController extends Controller
             'description' => 'nullable|string',
             'category' => 'required|string|max:100',
             'due_date' => 'nullable|date',
-            'start_time' => 'nullable|date_format:H:i',
-            'end_time' => 'nullable|date_format:H:i|after:start_time',
             'reminder_at' => 'nullable|date',
             'priority' => 'required|string|in:High,Medium,Low',
         ]);
@@ -152,8 +148,6 @@ class TodoController extends Controller
             'category' => $request->category,
             'position' => $position,
             'due_date' => $request->due_date,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
             'reminder_at' => $request->reminder_at,
             'priority' => $request->priority,
         ]);
@@ -196,12 +190,6 @@ class TodoController extends Controller
         if ($request->has('due_date')) {
             $todo->due_date = $request->due_date;
         }
-        if ($request->has('start_time')) {
-            $todo->start_time = $request->start_time;
-        }
-        if ($request->has('end_time')) {
-            $todo->end_time = $request->end_time;
-        }
         if ($request->has('reminder_at')) {
             $todo->reminder_at = $request->reminder_at;
         }
@@ -211,7 +199,7 @@ class TodoController extends Controller
         if ($request->has('completed')) {
             $todo->completed = $request->boolean('completed');
         }
-        if (! $request->has('title') && ! $request->has('description') && ! $request->has('category') && ! $request->has('completed') && ! $request->has('due_date') && ! $request->has('start_time') && ! $request->has('end_time') && ! $request->has('reminder_at') && ! $request->has('priority')) {
+        if (! $request->has('title') && ! $request->has('description') && ! $request->has('category') && ! $request->has('completed') && ! $request->has('due_date') && ! $request->has('reminder_at') && ! $request->has('priority')) {
             $todo->completed = ! $todo->completed;
         }
         $todo->save();

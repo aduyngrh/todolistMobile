@@ -11,15 +11,13 @@
     }
 @endphp
 
-<div class="trello-card rounded-xl p-3 shadow-sm border border-slate-200/80 bg-white hover:bg-slate-50/90 dark:border-slate-700/60 dark:bg-[#242e42] dark:hover:bg-[#2b374e] transition-all cursor-grab active:cursor-grabbing group relative select-none"
+<div class="todo-card rounded-xl p-3 shadow-sm border border-slate-200/80 bg-white hover:bg-slate-50/90 dark:border-slate-700/60 dark:bg-[#242e42] dark:hover:bg-[#2b374e] transition-all cursor-grab active:cursor-grabbing group relative select-none"
      data-id="{{ $todo->id }}"
      data-title="{{ e($todo->title) }}"
      data-description="{{ e($todo->description ?? '') }}"
      data-category="{{ e($todo->category) }}"
      data-due-date="{{ $todo->due_date?->format('Y-m-d') }}"
      data-priority="{{ $todo->priority }}"
-     data-start-time="{{ $todo->start_time }}"
-     data-end-time="{{ $todo->end_time }}"
      data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}"
      tabindex="0" aria-keyshortcuts="E D">
 
@@ -203,3 +201,4 @@
         </div>
     </details>
 </div>
+
