@@ -24,8 +24,6 @@ class TodoFactory extends Factory
             'description' => fake()->optional(0.7)->paragraph(),
             'category' => fake()->randomElement(['Work', 'Personal', 'Urgent']),
             'due_date' => fake()->optional(0.7)->dateTimeBetween('now', '+1 month')?->format('Y-m-d'),
-            'start_time' => null,
-            'end_time' => null,
             'reminder_at' => null,
             'priority' => fake()->randomElement(['High', 'Medium', 'Low']),
             'completed' => false,

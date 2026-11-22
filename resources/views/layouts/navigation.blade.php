@@ -30,9 +30,6 @@
                 <x-nav-link :href="route('todos.trash')" :active="request()->routeIs('todos.trash')">
                     {{ __('Trash') }}
                 </x-nav-link>
-                <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
-                    {{ __('Profile') }}
-                </x-nav-link>
             </div>
 
             <!-- Right: User actions -->
@@ -92,9 +89,6 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('todos.trash')" :active="request()->routeIs('todos.trash')">
                 {{ __('Trash') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
-                {{ __('Profile') }}
             </x-responsive-nav-link>
         </div>
 

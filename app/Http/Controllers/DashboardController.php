@@ -10,8 +10,10 @@ class DashboardController extends Controller
 {
     public function __invoke(): View
     {
+        $user = Auth::user();
         $todos = Todo::where('user_id', Auth::id())
             ->whereNull('archived_at')
+            ->latest()
             ->get();
 
         $total = $todos->count();
@@ -38,6 +40,6 @@ class DashboardController extends Controller
             return [$date->format('D') => $todos->filter(fn (Todo $todo): bool => $todo->completed && $todo->updated_at->isSameDay($date))->count()];
         });
 
-        return view('dashboard', compact('todos', 'total', 'completed', 'pending', 'progress', 'overdue', 'highPriority', 'weekCompleted', 'topCategory', 'todayTodos', 'upcomingTodos', 'priorityTodos', 'weekProgress'));
+        return view('dashboard', compact('user', 'todos', 'total', 'completed', 'pending', 'progress', 'overdue', 'highPriority', 'weekCompleted', 'topCategory', 'todayTodos', 'upcomingTodos', 'priorityTodos', 'weekProgress'));
     }
 }

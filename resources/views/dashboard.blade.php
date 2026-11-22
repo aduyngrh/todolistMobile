@@ -5,84 +5,42 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-indigo-600">Overview</p>
                 <h2 class="mt-1 text-2xl font-black tracking-tight text-gray-900 dark:text-white">Dashboard</h2>
             </div>
-            <span class="hidden rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 sm:inline-flex">My Task Board</span>
+            <a href="{{ route('todos.index') }}" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-indigo-700">Buka Todo List</a>
         </div>
     </x-slot>
 
-
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 py-8 transition-colors duration-300 dark:from-gray-950 dark:via-gray-950 dark:to-slate-900 sm:py-12">
+    <div class="min-h-screen bg-slate-100 py-8 dark:bg-[#0f172a] sm:py-10">
         <div class="mx-auto max-w-6xl space-y-6 px-4 sm:px-6 lg:px-8">
-            <section class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Kelola pekerjaan hari ini tanpa kehilangan fokus.</p>
-                </div>
-            </section>
-
-            <section class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-                <div class="rounded-2xl border border-blue-100/80 bg-white/90 p-5 shadow-sm shadow-blue-100/50 backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-blue-900/60 dark:bg-gray-900/90 dark:shadow-none"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total tugas</p><p class="mt-2 text-3xl font-black tracking-tight text-blue-600">{{ $total }}</p></div>
-                <div class="rounded-2xl border border-emerald-100/80 bg-white/90 p-5 shadow-sm shadow-emerald-100/50 backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-emerald-900/60 dark:bg-gray-900/90 dark:shadow-none"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Selesai</p><p class="mt-2 text-3xl font-black tracking-tight text-emerald-600">{{ $completed }}</p></div>
-                <div class="rounded-2xl border border-amber-100/80 bg-white/90 p-5 shadow-sm shadow-amber-100/50 backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-amber-900/60 dark:bg-gray-900/90 dark:shadow-none"><p class="text-sm font-medium text-gray-500 dark:text-gray-400">Perlu dikerjakan</p><p class="mt-2 text-3xl font-black tracking-tight text-amber-600">{{ $pending }}</p></div>
-            </section>
-
-            <section class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm shadow-slate-200/60 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 dark:shadow-none">
-                <div class="flex items-center justify-between"><div><h3 class="font-bold text-gray-900 dark:text-white">Progress tugas</h3><p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $completed }} dari {{ $total }} tugas selesai</p></div><span class="text-2xl font-black tracking-tight text-indigo-600">{{ $progress }}%</span></div>
-                <div class="mt-5 h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-gray-800"><div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-500 ease-out" style="width: {{ $progress }}%"></div></div>
-            </section>
-
-            <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm shadow-slate-200/60 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 dark:shadow-none">
-                    <div class="mb-4 flex items-center justify-between gap-3"><div><h3 class="font-bold text-gray-900 dark:text-white">Tugas hari ini</h3><p class="text-sm text-gray-500 dark:text-gray-400">{{ $todayTodos->count() }} tugas dengan deadline hari ini</p></div><a href="{{ route('todos.planner') }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700">Planner →</a></div>
-                    <div class="flex flex-col gap-2">
-                        @forelse($todayTodos->take(5) as $todo)
-                            <div class="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-gray-800"><span class="h-2 w-2 rounded-full {{ $todo->completed ? 'bg-emerald-500' : 'bg-amber-500' }}"></span><span class="min-w-0 flex-1 truncate text-sm {{ $todo->completed ? 'text-gray-400 line-through' : 'font-semibold text-gray-800 dark:text-gray-100' }}">{{ $todo->title }}</span><span class="text-xs text-gray-400">{{ $todo->priority }}</span></div>
-                        @empty
-                            <p class="rounded-xl border border-dashed border-gray-200 p-4 text-sm text-gray-500 dark:border-gray-700">Tidak ada tugas hari ini.</p>
-                        @endforelse
+            <section class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 p-6 text-white shadow-2xl sm:p-10">
+                <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-indigo-500/20 blur-3xl"></div>
+                <div class="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl"></div>
+                <div class="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                    <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-left">
+                        <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-3xl font-black text-white shadow-xl shadow-indigo-500/30 ring-4 ring-white/15 sm:h-24 sm:w-24 sm:text-4xl">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                        <div class="space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-start"><h1 class="text-2xl font-black tracking-tight sm:text-3xl">{{ $user->name }}</h1><span class="rounded-full border border-indigo-400/40 bg-indigo-500/30 px-2.5 py-0.5 text-xs font-bold text-indigo-200">? Task Master</span></div>
+                            <p class="text-sm font-medium text-slate-300">{{ $user->email }}</p>
+                            <p class="text-xs text-slate-400">Bergabung sejak {{ $user->created_at?->translatedFormat('F Y') ?? 'Baru saja' }}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm shadow-slate-200/60 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 dark:shadow-none">
-                    <div class="mb-4 flex items-center justify-between gap-3"><div><h3 class="font-bold text-gray-900 dark:text-white">Deadline berikutnya</h3><p class="text-sm text-gray-500 dark:text-gray-400">7 hari ke depan</p></div><a href="{{ route('todos.calendar') }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700">Kalender →</a></div>
-                    <div class="flex flex-col gap-2">
-                        @forelse($upcomingTodos as $todo)
-                            <div class="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-gray-800"><span class="min-w-0 flex-1 truncate text-sm font-semibold text-gray-800 dark:text-gray-100">{{ $todo->title }}</span><span class="rounded-lg bg-indigo-100 px-2 py-1 text-xs font-bold text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">{{ $todo->due_date->format('d M') }}</span></div>
-                        @empty
-                            <p class="rounded-xl border border-dashed border-gray-200 p-4 text-sm text-gray-500 dark:border-gray-700">Belum ada deadline mendatang.</p>
-                        @endforelse
-                    </div>
+                    <a href="#account-settings" class="rounded-2xl border border-white/15 bg-white/10 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-white/20">Pengaturan akun</a>
                 </div>
             </section>
 
-            <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm shadow-slate-200/60 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 dark:shadow-none">
-                    <div class="mb-5 flex items-center gap-3"><span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700 dark:bg-indigo-900/70 dark:text-indigo-300"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 16v-4m4 4V8m4 8v-7"/></svg></span><div><h3 class="font-bold text-gray-900 dark:text-white">Dashboard insight</h3><p class="text-sm text-gray-500 dark:text-gray-400">Ringkasan kondisi tugas Anda</p></div></div>
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="rounded-xl bg-rose-50/80 p-4 transition-colors duration-300 hover:bg-rose-100/80 dark:bg-rose-950/20 dark:hover:bg-rose-950/40"><p class="text-xs font-semibold text-rose-700 dark:text-rose-300">Terlambat</p><p class="mt-1 text-2xl font-black text-rose-700 dark:text-rose-300">{{ $overdue }}</p><p class="text-xs text-rose-600/80 dark:text-rose-300/70">Tugas melewati deadline</p></div>
-                    <div class="rounded-xl bg-amber-50/80 p-4 transition-colors duration-300 hover:bg-amber-100/80 dark:bg-amber-950/20 dark:hover:bg-amber-950/40"><p class="text-xs font-semibold text-amber-700 dark:text-amber-300">Prioritas tinggi</p><p class="mt-1 text-2xl font-black text-amber-700 dark:text-amber-300">{{ $highPriority }}</p><p class="text-xs text-amber-600/80 dark:text-amber-300/70">Belum selesai</p></div>
-                    <div class="rounded-xl bg-emerald-50/80 p-4 transition-colors duration-300 hover:bg-emerald-100/80 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40"><p class="text-xs font-semibold text-emerald-700 dark:text-emerald-300">Selesai minggu ini</p><p class="mt-1 text-2xl font-black text-emerald-700 dark:text-emerald-300">{{ $weekCompleted }}</p><p class="text-xs text-emerald-600/80 dark:text-emerald-300/70">Produktivitas terbaru</p></div>
-                    <div class="rounded-xl bg-indigo-50/80 p-4 transition-colors duration-300 hover:bg-indigo-100/80 dark:bg-indigo-950/20 dark:hover:bg-indigo-950/40"><p class="text-xs font-semibold text-indigo-700 dark:text-indigo-300">Tugas hari ini</p><p class="mt-1 truncate text-2xl font-black text-indigo-700 dark:text-indigo-300">{{ $todayTodos->where('completed', false)->count() }}</p><p class="text-xs text-indigo-600/80 dark:text-indigo-300/70">Belum selesai</p></div>
-                </div>
+            <section class="grid grid-cols-1 gap-6 lg:grid-cols-2" id="account-settings">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#181f2c] sm:p-8">@include('profile.partials.update-profile-information-form')</div>
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#181f2c] sm:p-8">@include('profile.partials.update-password-form')</div>
             </section>
 
-            <section class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm shadow-slate-200/60 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 dark:shadow-none">
-                <div class="flex items-center justify-between gap-4">
-                    <div><h3 class="font-bold text-gray-900 dark:text-white">Tugas hari ini</h3><p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Prioritas kerja hari ini</p></div>
-                    <a href="{{ route('todos.index', ['due_date' => now()->toDateString()]) }}" class="text-sm font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">Lihat semua</a>
-                </div>
-                <div class="mt-4 grid gap-3">
-                    @forelse ($todayTodos->where('completed', false) as $todo)
-                        <a href="{{ route('todos.index') }}" class="flex items-center justify-between gap-4 rounded-xl bg-slate-50 px-4 py-3 transition hover:bg-indigo-50 dark:bg-gray-800 dark:hover:bg-gray-700">
-                            <span class="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">{{ $todo->title }}</span>
-                            <span class="shrink-0 text-xs font-bold text-gray-500 dark:text-gray-400">{{ $todo->priority }}</span>
-                        </a>
+            <section class="space-y-4">
+                <div class="flex items-end justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-widest text-indigo-600">Todo Board</p><h2 class="mt-1 text-2xl font-black text-slate-900 dark:text-white">Card tugas Anda</h2></div><a href="{{ route('todos.index') }}" class="text-sm font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">Lihat semua ?</a></div>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    @forelse($todos->groupBy('category')->take(6) as $category => $categoryTodos)
+                        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#181f2c]"><div class="flex items-center justify-between gap-3"><h3 class="font-bold text-slate-900 dark:text-white">{{ $category }}</h3><span class="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">{{ $categoryTodos->count() }}</span></div><div class="mt-4 flex flex-col gap-2">@foreach($categoryTodos->take(3) as $todo)<div class="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800"><p class="truncate text-sm font-semibold {{ $todo->completed ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-100' }}">{{ $todo->title }}</p><div class="mt-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400"><span>{{ $todo->priority }}</span><span>{{ $todo->due_date?->format('d M') ?? 'Tanpa deadline' }}</span></div></div>@endforeach</div></div>
                     @empty
-                        <p class="rounded-xl bg-slate-50 px-4 py-3 text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">Tidak ada tugas tersisa hari ini.</p>
+                        <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500 dark:border-slate-700 dark:bg-[#181f2c] dark:text-slate-400">Belum ada card tugas.</div>
                     @endforelse
                 </div>
-            </section>
-
-            <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div class="rounded-2xl border border-rose-100 bg-white/90 p-6 shadow-sm dark:border-rose-900/40 dark:bg-gray-900/90"><div class="mb-4 flex items-center justify-between"><div><h3 class="font-bold text-gray-900 dark:text-white">Prioritas utama</h3><p class="text-sm text-gray-500 dark:text-gray-400">Tugas High yang belum selesai</p></div><a href="{{ route('todos.index', ['priority' => 'High', 'status' => 'pending']) }}" class="text-xs font-bold text-rose-600">Lihat semua →</a></div><div class="flex flex-col gap-2">@forelse($priorityTodos as $todo)<div class="flex items-center gap-3 rounded-xl bg-rose-50 px-3 py-2.5 dark:bg-rose-950/20"><span class="min-w-0 flex-1 truncate text-sm font-semibold text-gray-800 dark:text-gray-100">{{ $todo->title }}</span><span class="text-xs text-rose-600">{{ $todo->due_date?->format('d M') ?? 'Tanpa deadline' }}</span></div>@empty<p class="rounded-xl border border-dashed border-gray-200 p-4 text-sm text-gray-500 dark:border-gray-700">Tidak ada prioritas tinggi.</p>@endforelse</div></div>
-                <div class="rounded-2xl border border-slate-100 bg-white/90 p-6 shadow-sm shadow-slate-200/60 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 dark:shadow-none"><div class="mb-4"><h3 class="font-bold text-gray-900 dark:text-white">Progress mingguan</h3><p class="text-sm text-gray-500 dark:text-gray-400">Tugas selesai per hari</p></div><div class="flex h-32 items-end justify-between gap-2">@foreach($weekProgress as $day => $count)<div class="flex h-full flex-1 flex-col items-center justify-end gap-2"><div class="w-full rounded-t-lg bg-indigo-500 transition-all" style="height: {{ max(10, min(100, $count * 22)) }}%" title="{{ $count }} selesai"></div><span class="text-[10px] font-semibold text-gray-500">{{ $day }}</span></div>@endforeach</div></div>
             </section>
         </div>
     </div>
