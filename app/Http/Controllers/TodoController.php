@@ -131,6 +131,7 @@ class TodoController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
             'category' => 'required|string|max:100',
             'due_date' => 'nullable|date',
             'reminder_at' => 'nullable|date',
@@ -145,6 +146,7 @@ class TodoController extends Controller
             'user_id' => Auth::id(),
             'title' => $request->title,
             'description' => $request->description,
+            'image_path' => $request->file('image')?->store('todo-images', 'public'),
             'category' => $request->category,
             'position' => $position,
             'due_date' => $request->due_date,
@@ -178,11 +180,17 @@ class TodoController extends Controller
     {
         $todo = Todo::findOrFail($id);
         Gate::authorize('update', $todo);
+        $request->validate([
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+        ]);
         if ($request->has('title')) {
             $todo->title = $request->title;
         }
         if ($request->has('description')) {
             $todo->description = $request->description;
+        }
+        if ($request->hasFile('image')) {
+            $todo->image_path = $request->file('image')->store('todo-images', 'public');
         }
         if ($request->has('category')) {
             $todo->category = $request->category;

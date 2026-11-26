@@ -221,7 +221,7 @@
                 </div>
                 <button type="button" id="close-add-modal" class="rounded-xl px-3 py-2 text-2xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 transition" aria-label="Tutup">×</button>
             </div>
-            <form id="add-todo" method="POST" action="{{ route('todos.store') }}" class="flex flex-col gap-4">
+            <form id="add-todo" method="POST" action="{{ route('todos.store') }}" enctype="multipart/form-data" class="flex flex-col gap-4">
                 @csrf
                 <div class="relative">
                     <label for="todo-title" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Judul Kartu *</label>
@@ -265,6 +265,12 @@
                 </div>
 
                 <div>
+                    <label for="todo-image" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Gambar Card</label>
+                    <input id="todo-image" type="file" name="image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white">
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">JPG, PNG, WebP maksimal 10 MB.</p>
+                </div>
+
+                <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tanggal Tenggat</label>
                     <input type="date" name="due_date"
                            class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-0">
@@ -286,7 +292,7 @@
     <div id="edit-modal" class="fixed inset-0 z-50 hidden overflow-y-auto backdrop-blur-sm bg-black/50 p-4">
         <div class="flex items-center justify-center min-h-screen">
             <div class="bg-white dark:bg-[#181f2c] border border-slate-200 dark:border-slate-700/80 rounded-3xl text-left overflow-hidden shadow-2xl max-w-xl w-full text-slate-800 dark:text-white">
-                <form id="edit-todo-form" method="POST">
+                <form id="edit-todo-form" method="POST" enctype="multipart/form-data">
                     @csrf @method('PATCH')
                     <div class="bg-indigo-600 px-6 py-4 flex items-center justify-between text-white">
                         <h3 class="text-lg font-bold">Edit Kartu Tugas ✨</h3>
@@ -318,6 +324,11 @@
                                     <option value="Low">Low</option>
                                 </select>
                             </div>
+                        </div>
+                        <div>
+                            <label for="edit-todo-image" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Gambar Card</label>
+                            <input id="edit-todo-image" type="file" name="image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#111827] px-4 py-2.5 text-sm text-slate-800 dark:text-white">
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Pilih gambar baru untuk mengganti gambar lama. Maksimal 10 MB.</p>
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tenggat</label>

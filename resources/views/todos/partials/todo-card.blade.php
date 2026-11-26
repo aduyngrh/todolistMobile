@@ -21,10 +21,13 @@
      data-reminder-at="{{ $todo->reminder_at?->format('Y-m-d\TH:i') }}"
      tabindex="0" aria-keyshortcuts="E D">
 
-    <!-- Optional Image Attachment Preview -->
-    @if($imageUrl)
+    @if($todo->image_path)
         <div class="mb-2.5 overflow-hidden rounded-lg max-h-40 bg-slate-100 dark:bg-black/30">
-            <img src="{{ $imageUrl }}" alt="Card preview" class="w-full h-auto object-cover rounded-lg">
+            <img src="{{ asset('storage/'.$todo->image_path) }}" alt="Gambar {{ $todo->title }}" class="h-auto w-full rounded-lg object-cover">
+        </div>
+    @elseif($imageUrl)
+        <div class="mb-2.5 overflow-hidden rounded-lg max-h-40 bg-slate-100 dark:bg-black/30">
+            <img src="{{ $imageUrl }}" alt="Card preview" class="h-auto w-full rounded-lg object-cover">
         </div>
     @endif
 
@@ -122,14 +125,13 @@
         @endif
 
         <!-- Priority Pill -->
-        @if($todo->priority === 'High')
-            <span class="rounded bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 px-1.5 py-0.5 text-[10px] font-bold uppercase">
-                High
-            </span>
-        @elseif($todo->priority === 'Medium')
-            <span class="rounded bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300 px-1.5 py-0.5 text-[10px] font-bold uppercase">
-                Med
-            </span>
+        @php($priority = strtolower(trim((string) $todo->priority)))
+        @if(str_contains($priority, 'high'))
+            <span class="rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-rose-700 dark:bg-rose-500/20 dark:text-rose-300">High</span>
+        @elseif(str_contains($priority, 'medium'))
+            <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">Med</span>
+        @elseif(str_contains($priority, 'low'))
+            <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">Low</span>
         @endif
     </div>
 
