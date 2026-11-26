@@ -39,6 +39,7 @@ class Todo extends Model
         'user_id',
         'title',
         'description',
+        'image_path',
         'category',
         'position',
         'due_date',
